@@ -1,0 +1,26 @@
+[
+  {
+    "file": "0001_elephant.jpg",
+    "label": "Elephant"
+  },
+  {
+    "file": "0002_lion.jpg",
+    "label": "Lion"
+  },
+  {
+    "file": "0003_bear.jpg",
+    "label": "Bear"
+  },
+  {
+    "file": "0004_cat.jpg",
+    "label": "Cat"
+  },
+  {
+    "file": "0005_dog.jpg",
+    "label": "Dog"
+  },
+  {
+    "file": "0006_penguin.jpg",
+    "label": "Penguin"
+  }
+]

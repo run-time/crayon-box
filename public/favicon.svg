@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="7 1 67 67">
+  <!-- The two crayons of the Crayon Box logo; index.html uses #mark for the folded strip. -->
+  <g id="mark" stroke-linejoin="round">
+    <path d="M12 29 L24 7 Q27 2 30 7 L42 29 L42 68 L12 68 Z" fill="#D946A5"/>
+    <path d="M12 29 L24 7 Q27 2 30 7 L42 29 Z" fill="#F9A8D4"/>
+    <path d="M12 29 H42 M12 38 H42 M12 59 H42" stroke="#FCE7F3" stroke-width="1.5"/>
+    <path d="M39 38 L51 16 Q54 11 57 16 L69 38 L69 68 L39 68 Z" fill="#8138C8"/>
+    <path d="M39 38 L51 16 Q54 11 57 16 L69 38 Z" fill="#C4A1F5"/>
+    <path d="M39 38 H69 M39 47 H69 M39 59 H69" stroke="#E9D5FF" stroke-width="1.5"/>
+  </g>
+</svg>

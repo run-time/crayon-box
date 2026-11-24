@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Crayon Box</title>
+  <meta name="description" content="Crayon Box: a drawing app for kids, with crayons, markers, paint, sparkles and stamps." />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/vendor/flare-ux/src/styles/flare.css" />
+  <link rel="stylesheet" href="/app.css" />
+  <!-- Bare "@run.time/flare-ux" imports resolve to the copy served from
+       /vendor (node_modules in dev, copied there by `npm run build`). -->
+  <script>
+    // The menus' theme picked last time (the paper keeps its own color), before anything paints.
+    try {
+      const theme = localStorage.getItem("crayon-box.theme");
+      if (theme === "light" || theme === "dark") document.documentElement.dataset.fxTheme = theme;
+    } catch {}
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "@run.time/flare-ux": "/vendor/flare-ux/src/index.js",
+        "@run.time/flare-ux/": "/vendor/flare-ux/src/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="app no-slide" data-layout="sidebar">
+    <aside class="toolbox" aria-label="Drawing tools">
+      <header class="toolbox-head">
+        <!-- The logo folds the sidebar into the strip, and opens it again. -->
+        <button type="button" class="brand" id="layout-toggle" aria-label="Fold tools into a strip" aria-expanded="true">
+          <!-- The full logo in the sidebar; just its crayons in the folded strip. -->
+          <svg class="brand-full" viewBox="0 0 322 80" aria-hidden="true">
+            <g stroke-linejoin="round">
+              <path d="M12 29 L24 7 Q27 2 30 7 L42 29 L42 68 L12 68 Z" fill="#D946A5"/>
+              <path d="M12 29 L24 7 Q27 2 30 7 L42 29 Z" fill="#F9A8D4"/>
+              <path d="M12 29 H42 M12 38 H42 M12 59 H42" stroke="#FCE7F3" stroke-width="1.5"/>
+              <path d="M39 38 L51 16 Q54 11 57 16 L69 38 L69 68 L39 68 Z" fill="#8138C8"/>
+              <path d="M39 38 L51 16 Q54 11 57 16 L69 38 Z" fill="#C4A1F5"/>
+              <path d="M39 38 H69 M39 47 H69 M39 59 H69" stroke="#E9D5FF" stroke-width="1.5"/>
+              <text x="80" y="64" font-family="Trebuchet MS, Arial" font-size="46" font-weight="800" letter-spacing="-1">
+                <tspan style="--c:#E84B91">C</tspan><tspan style="--c:#F28C38">r</tspan><tspan style="--c:#E5B52E">a</tspan><tspan style="--c:#54AD70">y</tspan><tspan style="--c:#3999D5">o</tspan><tspan style="--c:#8B60CC">n</tspan><tspan style="--c:#E84B91"> B</tspan><tspan style="--c:#F28C38">o</tspan><tspan style="--c:#E5B52E">x</tspan>
+              </text>
+            </g>
+          </svg>
+          <svg class="brand-mark" viewBox="7 1 67 67" aria-hidden="true"><use href="/favicon.svg#mark" /></svg>
+        </button>
+        <div class="head-buttons">
+          <fx-dropdown-menu id="settings" label="Settings" title="Settings">
+            <fx-icon slot="trigger" name="menu" size="22"></fx-icon>
+            <button data-value="erase"><fx-icon name="close" size="18"></fx-icon><span>Erase All</span></button>
+            <hr />
+            <button data-value="light" data-check="theme"><fx-icon name="sun" size="18"></fx-icon><span>Light Mode</span><fx-icon class="menu-check" name="check" size="18"></fx-icon></button>
+            <button data-value="dark" data-check="theme"><fx-icon name="moon" size="18"></fx-icon><span>Dark Mode</span><fx-icon class="menu-check" name="check" size="18"></fx-icon></button>
+            <hr />
+            <button data-value="sidebar" data-check="layout"><fx-icon name="view-detail" size="18"></fx-icon><span>Detail View</span><fx-icon class="menu-check" name="check" size="18"></fx-icon></button>
+            <button data-value="rail" data-check="layout"><fx-icon name="view-compact" size="18"></fx-icon><span>Compact View</span><fx-icon class="menu-check" name="check" size="18"></fx-icon></button>
+            <hr />
+            <button data-value="new" data-tone="danger"><fx-icon name="file-plus" size="18"></fx-icon><span>New Picture</span></button>
+            <button data-value="save"><fx-icon name="download" size="18"></fx-icon><span>Save Picture</span></button>
+          </fx-dropdown-menu>
+        </div>
+      </header>
+
+      <div class="groups">
+        <section class="group" data-group="brush">
+          <button type="button" class="group-trigger" data-trigger="brush" aria-expanded="false" aria-haspopup="dialog">
+            <span class="trigger-face"></span>
+          </button>
+          <div class="group-panel" data-group-panel="brush" role="group" aria-label="Brush">
+            <h2 class="group-title">Brush <span class="picked"></span></h2>
+            <div class="choices grid-brush"></div>
+          </div>
+        </section>
+
+        <section class="group" data-group="size">
+          <button type="button" class="group-trigger" data-trigger="size" aria-expanded="false" aria-haspopup="dialog">
+            <span class="trigger-face"><span class="size-dot"></span></span>
+          </button>
+          <div class="group-panel" data-group-panel="size" role="group" aria-label="Size">
+            <h2 class="group-title">Size <span class="picked"></span></h2>
+            <div class="choices grid-size"></div>
+          </div>
+        </section>
+
+        <section class="group" data-group="shape">
+          <button type="button" class="group-trigger" data-trigger="shape" aria-expanded="false" aria-haspopup="dialog">
+            <span class="trigger-face"></span>
+          </button>
+          <div class="group-panel" data-group-panel="shape" role="group" aria-label="Shape">
+            <h2 class="group-title">Shape <span class="picked"></span></h2>
+            <div class="choices grid-shape"></div>
+          </div>
+        </section>
+
+        <section class="group" data-group="color">
+          <button type="button" class="group-trigger" data-trigger="color" aria-expanded="false" aria-haspopup="dialog">
+            <span class="trigger-face"><span class="crayon-wrap"><span class="crayon"></span></span></span>
+          </button>
+          <div class="group-panel" data-group-panel="color" role="group" aria-label="Color">
+            <h2 class="group-title">Color <span class="picked"></span></h2>
+            <div class="choices grid-color"></div>
+          </div>
+        </section>
+
+        <section class="group" data-group="paper">
+          <button type="button" class="group-trigger" data-trigger="paper" aria-expanded="false" aria-haspopup="dialog">
+            <span class="trigger-face"><span class="paper-sheet"></span></span>
+          </button>
+          <div class="group-panel" data-group-panel="paper" role="group" aria-label="Paper">
+            <h2 class="group-title">Paper <span class="picked"></span></h2>
+            <div class="choices grid-paper"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="actions">
+        <fx-button id="undo" icon="undo" aria-label="Undo" title="Undo" disabled><span class="btn-text">Undo</span></fx-button>
+        <fx-button id="redo" icon="redo" aria-label="Redo" title="Redo" disabled><span class="btn-text">Redo</span></fx-button>
+      </div>
+    </aside>
+
+    <main class="stage" aria-label="Drawing paper">
+      <div class="paper" id="paper" aria-hidden="true"></div>
+      <canvas id="ink"></canvas>
+      <canvas id="wet" aria-hidden="true"></canvas>
+      <div class="lines" aria-hidden="true"></div>
+      <div class="cursor-ring" hidden></div>
+    </main>
+  </div>
+  <fx-dialog id="coloring-dialog" headline="Pick a coloring page" dismissible wide>
+    <div class="coloring-grid"></div>
+    <fx-button slot="actions" variant="text" data-close>Cancel</fx-button>
+  </fx-dialog>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

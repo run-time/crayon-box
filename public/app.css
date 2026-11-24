@@ -1,0 +1,532 @@
+/* Crayon Box. Colors, type, spacing and radii come from Flare UX tokens;
+   only the paper (white, like real paper, in either theme) and the crayons'
+   own colors are fixed. */
+
+:root {
+  /* A rounder, friendlier face where the system has one. */
+  --fx-font: ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Flare's accent, re-pointed at purple (light and dark, as tokens.css does). */
+  --fx-interactive: var(--fx-color-purple-60);
+  --fx-interactive-hover: var(--fx-color-purple-60-hover);
+  --fx-interactive-text: var(--fx-color-purple-60);
+  --fx-interactive-subtle: var(--fx-color-purple-10);
+  --fx-focus: var(--fx-color-purple-60);
+  --ink: #e53935;
+  --toolbox-width: 300px;
+  --rail-width: 64px;
+  --paper: var(--fx-color-white);
+  --rainbow: linear-gradient(to bottom, #e53935, #fb8c00, #fdd835, #2e9e44, #29b6f6, #1e5bd8, #7b3fc4);
+  /* The picked choice: black with white text; flipped in dark mode. */
+  --picked-bg: var(--fx-color-black);
+  --picked-text: var(--fx-color-white);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-fx-theme="light"]) {
+    --picked-bg: var(--fx-color-white);
+    --picked-text: var(--fx-color-black);
+    --fx-interactive-text: var(--fx-color-purple-40);
+    --fx-interactive-subtle: color-mix(in srgb, var(--fx-color-purple-60) 22%, var(--fx-layer));
+    --fx-focus: var(--fx-color-white);
+  }
+}
+:root[data-fx-theme="dark"] {
+  --picked-bg: var(--fx-color-white);
+  --picked-text: var(--fx-color-black);
+  --fx-interactive-text: var(--fx-color-purple-40);
+  --fx-interactive-subtle: color-mix(in srgb, var(--fx-color-purple-60) 22%, var(--fx-layer));
+  --fx-focus: var(--fx-color-white);
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: var(--toolbox-width) minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+  /* Folding and opening the sidebar eases the column's width (as baby-monitor's shell does). */
+  transition: grid-template-columns 160ms ease;
+}
+/* No slide while the page first sets itself up (app.js lifts this). */
+.app.no-slide { transition: none; }
+
+/* -- The toolbox, as a sidebar ----------------------------------------- */
+
+.toolbox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fx-spacing-05);
+  min-height: 0;
+  padding: var(--fx-spacing-05);
+  padding-left: max(var(--fx-spacing-05), env(safe-area-inset-left));
+  overflow-y: auto;
+  background: var(--fx-layer);
+  border-right: 1px solid var(--fx-border);
+  z-index: 2;
+}
+
+.toolbox-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fx-spacing-03);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fx-spacing-03);
+  color: var(--fx-text);
+  text-decoration: none;
+  font: var(--fx-type-heading-03);
+  font-family: var(--fx-font);
+  letter-spacing: -0.01em;
+}
+.brand {
+  appearance: none;
+  margin: 0;
+  padding: var(--fx-spacing-01) var(--fx-spacing-02) var(--fx-spacing-01) var(--fx-spacing-01);
+  border: 0;
+  border-radius: var(--fx-radius-lg);
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--fx-duration-fast-02) var(--fx-easing-standard);
+}
+.brand:hover { color: var(--fx-text); }
+/* The wordmark is plain text color until the logo is hovered (or focused),
+   then each letter takes its crayon color. */
+.brand-full tspan { fill: var(--fx-text); transition: fill var(--fx-duration-fast-02) var(--fx-easing-standard); }
+.brand:is(:hover, :focus-visible) .brand-full tspan { fill: var(--c); }
+.brand:active :is(.brand-mark, .brand-full) { transform: scale(0.97); }
+.brand-mark,
+.brand-full { flex: none; transition: transform var(--fx-duration-fast-02) var(--fx-easing-standard); }
+/* The sidebar shows the full logo; the strip only its crayons. */
+/* Drawn at the strip's scale (32px per 67 logo units), so folding the sidebar
+   leaves the crayons the same size. */
+.brand-full { width: 154px; height: 38px; }
+.brand-mark { display: none; width: 34px; height: 34px; }
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fx-spacing-06);
+}
+
+.group-trigger { display: none; }
+
+.group-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--fx-spacing-03);
+  font: var(--fx-type-heading-02);
+  font-family: var(--fx-font);
+}
+.group-title .picked {
+  font: var(--fx-type-helper-01);
+  font-family: var(--fx-font);
+  color: var(--fx-text-secondary);
+}
+
+.choices { display: grid; gap: var(--fx-spacing-03); }
+.grid-brush { grid-template-columns: repeat(4, 1fr); }
+.grid-color { grid-template-columns: repeat(5, 1fr); gap: var(--fx-spacing-02); }
+.grid-size { grid-template-columns: repeat(6, 1fr); }
+.grid-shape { grid-template-columns: repeat(6, 1fr); }
+
+/* One choice: a brush, a crayon, a size, a shape, a paper. Every tile is a
+   square, its picture centered in it. */
+.opt {
+  appearance: none;
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  min-width: 0;
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--fx-radius);
+  background: var(--fx-layer-alt);
+  color: var(--fx-text);
+  font: var(--fx-type-helper-01);
+  font-family: var(--fx-font);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--fx-duration-fast-02) var(--fx-easing-standard),
+    background-color var(--fx-duration-fast-02) var(--fx-easing-standard),
+    border-color var(--fx-duration-fast-02) var(--fx-easing-standard);
+}
+.opt:hover { background: var(--fx-layer-hover); transform: scale(1.05); }
+.opt:active { transform: scale(0.96); }
+/* The picked choice: the same tile with a 2px border (black; white in dark mode). */
+.opt[aria-pressed="true"],
+.opt.custom.is-picked {
+  border-color: var(--picked-bg);
+}
+.opt-text { line-height: 1.1; }
+
+/* Brush icons: their accent (crayon tip, marker line, spray dots, …) is always
+   a soft teal, not the chosen color (shapes and sizes still show that). */
+.grid-brush fx-icon,
+.group-trigger[data-trigger="brush"] fx-icon {
+  --ink: color-mix(in srgb, var(--fx-color-teal-60) 60%, transparent);
+}
+
+/* Paint's strength: three dots in the tile's corner, filled one (Light), two
+   (Medium) or three (Hard). Shown while Paint is the brush. */
+.pips {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  display: flex;
+  gap: 2px;
+}
+.pips i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.5;
+}
+.pips i.on { background: currentColor; opacity: 1; }
+.opt:not([aria-pressed="true"]) .pips { display: none; }
+.trigger-face { position: relative; }
+.group-trigger .pips { top: -8px; left: -10px; }
+.grid-shape .opt { color: var(--ink); }
+/* A 1px outline in the text color (dark on light menus, light on dark ones),
+   so a shape or size dot shows in any ink, white included. */
+:root { --ink-edge: color-mix(in srgb, var(--fx-text) 60%, transparent); }
+.grid-shape fx-icon,
+.group-trigger[data-trigger="shape"] fx-icon {
+  filter:
+    drop-shadow(1px 0 0 var(--ink-edge)) drop-shadow(-1px 0 0 var(--ink-edge))
+    drop-shadow(0 1px 0 var(--ink-edge)) drop-shadow(0 -1px 0 var(--ink-edge));
+}
+
+/* In the strip, an open button is a dark circle: the crayon (in the chosen
+   color) gets a thin light outline there, so even a black crayon stays visible. */
+.group-trigger[aria-expanded="true"] .crayon-wrap {
+  filter:
+    drop-shadow(1px 0 0 var(--crayon-line)) drop-shadow(-1px 0 0 var(--crayon-line))
+    drop-shadow(0 1px 0 var(--crayon-line)) drop-shadow(0 -1px 0 var(--crayon-line))
+    drop-shadow(1px 0 0 var(--picked-text)) drop-shadow(-1px 0 0 var(--picked-text))
+    drop-shadow(0 1px 0 var(--picked-text)) drop-shadow(0 -1px 0 var(--picked-text));
+}
+
+/* Crayons: each color is a little crayon, sitting in its own tile. */
+/* A slim crayon with a sharp tip, drawn upright here and tilted by its
+   wrapper to point at the top-right corner. */
+.crayon {
+  display: block;
+  width: 11px;
+  height: 34px;
+  background:
+    linear-gradient(to bottom,
+      transparent 0 44%,
+      var(--band, color-mix(in srgb, var(--c) 70%, black)) 44% 50%,
+      transparent 50% 82%,
+      var(--band, color-mix(in srgb, var(--c) 70%, black)) 82% 88%,
+      transparent 88%),
+    var(--c);
+  clip-path: polygon(42% 0, 58% 0, 100% 36%, 100% 100%, 0 100%, 0 36%);
+}
+/* The outline lives on this wrapper: a filter on the clipped crayon would be clipped too. */
+.crayon-wrap {
+  display: grid;
+  rotate: 45deg;
+  /* A 1px black line around every crayon. */
+  --crayon-line: var(--fx-color-black);
+  filter:
+    drop-shadow(1px 0 0 var(--crayon-line)) drop-shadow(-1px 0 0 var(--crayon-line))
+    drop-shadow(0 1px 0 var(--crayon-line)) drop-shadow(0 -1px 0 var(--crayon-line));
+}
+
+/* Rainbow: a striped crayon; it draws every hue in turn. */
+.opt[data-value="rainbow"] .crayon,
+.group-trigger .crayon.is-rainbow { background: var(--rainbow); }
+
+/* Any color: a color wheel that opens the system color picker; once used,
+   its middle shows the color picked. */
+.opt.custom { --c: var(--fx-layer-alt); cursor: pointer; }
+.wheel {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--c) 0 5px, transparent 5.5px),
+    conic-gradient(#e53935, #fdd835, #2e9e44, #29b6f6, #7b3fc4, #f06292, #e53935);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--fx-text) 25%, transparent);
+}
+.opt.custom input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+}
+
+.size-dot {
+  display: block;
+  flex: none;
+  width: var(--d);
+  height: var(--d);
+  border-radius: 50%;
+  background: var(--ink-bg, var(--ink));
+  box-shadow: 0 0 0 1px var(--ink-edge);
+}
+
+/* Paper: a little sheet in each paper color. */
+.grid-paper { grid-template-columns: repeat(5, 1fr); }
+/* Picture: an image icon until a photo is uploaded, then the photo itself. */
+.opt:is([data-value="picture"], [data-value="coloring"]) .paper-sheet { display: none; }
+.opt:is([data-value="picture"], [data-value="coloring"]).has-picture .paper-sheet { display: block; background: var(--p); }
+.opt:is([data-value="picture"], [data-value="coloring"]).has-picture fx-icon { display: none; }
+
+/* The coloring page chooser. */
+.coloring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--fx-spacing-04);
+}
+.coloring-choice {
+  appearance: none;
+  display: grid;
+  gap: var(--fx-spacing-02);
+  margin: 0;
+  padding: var(--fx-spacing-03);
+  border: 2px solid transparent;
+  border-radius: var(--fx-radius);
+  background: var(--fx-layer-alt);
+  color: var(--fx-text);
+  font: var(--fx-type-body-compact-01);
+  font-family: var(--fx-font);
+  cursor: pointer;
+}
+.coloring-choice:hover { background: var(--fx-layer-hover); }
+.coloring-choice[aria-pressed="true"] { border-color: var(--picked-bg); }
+.coloring-choice img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #ffffff;
+  border-radius: var(--fx-radius-sm);
+}
+.paper-sheet {
+  display: block;
+  width: 24px;
+  height: 30px;
+  border-radius: 3px;
+  background: var(--p);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--fx-text) 30%, transparent);
+}
+.group-trigger[aria-expanded="true"] .paper-sheet {
+  background: var(--p);
+  box-shadow: 0 0 0 1px var(--picked-text);
+}
+.group-trigger .paper-sheet { --p: var(--paper); width: 26px; height: 32px; background: var(--p); }
+
+.head-buttons { display: flex; align-items: center; }
+
+/* The gear menu. Items tick the current theme and view. */
+#settings {
+  --fx-dropdown-menu-trigger-size: 40px;
+  --fx-dropdown-menu-trigger-radius: var(--fx-radius-lg);
+  color: var(--fx-interactive-text);
+}
+#settings > button { min-height: 40px; }
+#settings > button > fx-icon { flex: none; }
+#settings > button > span { flex: 1; }
+#settings .menu-check { visibility: hidden; color: var(--fx-interactive-text); }
+#settings > button.is-checked .menu-check { visibility: visible; }
+#settings > button.is-checked > span { font-weight: 600; }
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fx-spacing-03);
+  margin-top: auto;
+  padding-top: var(--fx-spacing-03);
+}
+.actions fx-button { width: 100%; }
+.actions fx-button::part(button) { width: 100%; justify-content: center; }
+
+/* -- The toolbox, folded into a strip of icon menus down the left -------------
+   Only a narrow strip stays beside the paper; each group is a round button
+   showing what is picked, and its choices open in a popover to its right.
+   The popover is position: fixed (placed by app.js), so the strip can scroll
+   on a short screen without clipping it. */
+
+.app[data-layout="rail"] {
+  grid-template-columns: var(--rail-width) minmax(0, 1fr);
+}
+
+.app[data-layout="rail"] .toolbox {
+  align-items: center;
+  gap: var(--fx-spacing-04);
+  padding: var(--fx-spacing-03) var(--fx-spacing-02);
+  padding-left: max(var(--fx-spacing-02), env(safe-area-inset-left));
+  scrollbar-width: none;
+}
+.app[data-layout="rail"] .toolbox-head {
+  flex-direction: column;
+  gap: var(--fx-spacing-02);
+}
+.app[data-layout="rail"] .brand-full { display: none; }
+.app[data-layout="rail"] .brand-mark { display: block; }
+.app[data-layout="rail"] .brand { padding: var(--fx-spacing-02); }
+.app[data-layout="rail"] .head-buttons { flex-direction: column; }
+.app[data-layout="rail"] .brand-mark { width: 32px; height: 32px; }
+
+.app[data-layout="rail"] .groups {
+  gap: var(--fx-spacing-02);
+  padding-block: var(--fx-spacing-03);
+  border-block: 1px solid var(--fx-border);
+}
+
+.app[data-layout="rail"] .group-trigger {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--fx-radius-pill);
+  background: transparent;
+  color: var(--fx-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--fx-duration-fast-02) var(--fx-easing-standard), background-color var(--fx-duration-fast-02);
+}
+.app[data-layout="rail"] .group-trigger:hover { background: var(--fx-layer-hover); transform: scale(1.06); }
+.app[data-layout="rail"] .group-trigger:active { transform: scale(0.95); }
+.app[data-layout="rail"] .group-trigger[aria-expanded="true"] {
+  background: var(--picked-bg);
+  color: var(--picked-text);
+}
+.trigger-face { display: grid; place-items: center; }
+.group-trigger .crayon { --c: var(--ink); --band: var(--ink-band); width: 12px; height: 38px; }
+/* The black crayon's bands are white; a darker black would not show. */
+.opt[data-value="#212121"] .crayon { --band: var(--fx-color-white); }
+/* In the strip, Size and Shape draw in the button's own color (black, like the
+   Brush button; light while open); only the Color crayon shows the chosen color.
+   Their popovers still preview the chosen color. */
+.group-trigger .size-dot { background: currentColor; box-shadow: none; }
+.group-trigger[data-trigger="shape"] fx-icon { --ink-opposite: var(--fx-layer); filter: none; }
+
+.app[data-layout="rail"] .group-panel {
+  display: none;
+  position: fixed;
+  top: var(--top, 0px);
+  left: calc(var(--rail-width) + var(--fx-spacing-03));
+  z-index: var(--fx-z-dropdown);
+  width: min(300px, calc(100vw - var(--rail-width) - 2 * var(--fx-spacing-03)));
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+  padding: var(--fx-spacing-04);
+  border: 1px solid var(--fx-border);
+  border-radius: var(--fx-radius-xl);
+  background: var(--fx-layer);
+  box-shadow: var(--fx-shadow-lg);
+}
+.app[data-layout="rail"] .group[data-open] .group-panel {
+  display: block;
+  animation: pop var(--fx-duration-fast-02) var(--fx-easing-entrance);
+}
+.app[data-layout="rail"] .grid-color { padding-top: var(--fx-spacing-03); }
+
+@keyframes pop {
+  from { opacity: 0; translate: -4px 0; }
+}
+
+.app[data-layout="rail"] .actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fx-spacing-02);
+}
+.app[data-layout="rail"] .actions {
+  margin-top: auto;
+  padding-top: var(--fx-spacing-03);
+}
+.app[data-layout="rail"] .actions fx-button { width: auto; }
+.app[data-layout="rail"] .actions fx-button::part(button) {
+  width: 44px;
+  padding-inline: 0;
+  justify-content: center;
+}
+.app[data-layout="rail"] .btn-text { display: none; }
+
+/* -- The paper ---------------------------------------------------------------- */
+
+.stage {
+  position: relative;
+  overflow: hidden;
+  background: var(--paper);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: crosshair;
+}
+.stage[data-brush="fill"] { cursor: cell; }
+.stage[data-brush="move"] { cursor: crosshair; }
+
+.stage canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+}
+#wet { pointer-events: none; }
+/* A coloring page's lines, over the drawing: multiplied, so the page's white
+   lets the coloring show through and only its lines stay on top. */
+.lines {
+  position: absolute; /* placed by app.js where the page was put when picked */
+  background: var(--lines, none) 0 0 / 100% 100% no-repeat;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+/* The paper: its own layer under the ink, filling the visible stage, so Sunset's
+   horizon and a Picture fit the screen, and match what Save writes (the
+   visible area). (Chrome does not reliably repaint a gradient set behind a canvas.) */
+.paper {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  pointer-events: none;
+}
+
+.cursor-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 1.5px solid var(--fx-color-white);
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  will-change: transform;
+}
+.cursor-ring[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .app, .opt, .group-trigger { transition: none; }
+  .app[data-layout="rail"] .group[data-open] .group-panel { animation: none; }
+}

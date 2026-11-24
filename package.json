@@ -1,0 +1,19 @@
+{
+  "name": "crayon-box",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Crayon Box: a drawing app for kids, built with Flare UX native web components.",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "dependencies": {
+    "@run.time/flare-ux": "^0.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,2 +1,78 @@
-# crayon-box
-color your world
+# Crayon Box
+
+A drawing app for kids: crayons, markers, paint, sparkle spray, fill,
+eraser, smudge (smears what is drawn) and move (box part of the picture, then
+move, resize or turn it), in 18 colors plus Rainbow (every brush cycles through the hues) and
+any color from a color wheel, six sizes (Tiny 1px to Gianormous 64px) and six tip shapes
+(round, square, triangle, star, heart, flower — a shaped tip stamps along the
+stroke), on 20 papers to match the 20 colors: 15 plain ones (White, Cream, Sunshine,
+Pink, Purple, Sky, Water, Grass, Silver, Ocean, Evergreen, Plum, Cherry,
+Cardboard, Chalkboard), Wood (public/assets/papers/wood.png), Sunset (a sunset
+down to a middle horizon, mirrored below it), Coloring Page (line art to color
+in, from public/assets/coloring-pages), Picture (a photo you upload, filling
+the paper; kept in the browser) and Custom (any color from a color wheel).
+
+Coloring pages are just images in `public/assets/coloring-pages`: add one and
+it shows in the chooser. The dev server lists the folder live at
+`/assets/coloring-pages/index.json`; `npm run build` writes that list for
+static hosting. The page's lines sit on top of the coloring (multiplied, so
+white shows the coloring through), Fill stops at them, and Save keeps them. Save saves
+what is on screen, on its paper. The menus
+have their own light/dark toggle; the paper keeps its color either way.
+
+Built like [Flare UX](https://flare-ux.vercel.app): native web components,
+plain ES modules, no framework and no bundler. The UI uses
+[`@run.time/flare-ux`](https://www.npmjs.com/package/@run.time/flare-ux) from
+npm (buttons, icons, the confirm dialog, toasts, and its color/type/spacing
+tokens).
+
+## Run it
+
+```sh
+npm install
+npm run dev      # http://127.0.0.1:3000  (PORT=4000 npm run dev)
+npm run check    # scripts parse; every fx-* element and flare-ux import exists
+npm run build    # copies flare-ux into public/vendor for static hosting
+```
+
+## Deploy (Vercel)
+
+`vercel.json` runs `npm run check && npm run build` and serves `public/`.
+Import it as a new Vercel project (framework: Other) or run `vercel` here.
+
+## How it fits together
+
+| Path | What it is |
+|---|---|
+| `public/index.html` | The page; an import map points `@run.time/flare-ux/…` at `/vendor/flare-ux/src/…` |
+| `public/app.css` | Layout and look, drawn with Flare UX tokens |
+| `public/js/app.js` | The toolbox: sidebar ⇄ strip of icon menus, choices, ☰ menu, undo/redo, save, autosave |
+| `public/js/painter.js` | The drawing engine (strokes, stamps, sparkle spray, smudge, flood fill) |
+| `public/js/shapes.js` | Tip shapes, shared by the stamps and their buttons |
+| `public/js/icons.js` | Brush and shape icons, registered as Flare UX icon sets (`crayon:*`, `shape:*`) |
+| `public/js/history.js` | Undo/redo as PNG snapshots |
+| `scripts/serve.mjs` | Node dev server; serves `/vendor/flare-ux/` straight from node_modules |
+| `scripts/build.mjs` | Copies flare-ux into `public/vendor/` for Vercel |
+| `scripts/coloring-pages.mjs` | Lists the coloring pages (dev server and build) |
+| `public/assets/` | Paper images (`papers/`) and coloring pages (`coloring-pages/`) |
+
+The toolbox has two layouts, toggled by clicking the Crayon Box logo and
+remembered per browser: a **sidebar** with every choice laid out, or a narrow
+**strip** down the left of round icon menus (brush, color, size, shape) that
+open popovers beside them, like the pickers in Star Jars — nearly the whole
+screen is paper, and the tools are still one tap away. Narrow screens start
+in the strip.
+
+The ☰ menu holds Erase All (wipes the paper at once; Undo brings it
+back), Light Mode / Dark Mode (menus only), Detail View /
+Compact View (the same as clicking the logo), and New Picture / Save Picture.
+Undo and Redo stay visible at the bottom of the toolbox, with 150 steps.
+
+The picture autosaves to localStorage, so a refresh doesn't lose it.
+Paint, Spray and Smudge have three strengths: picking one starts at Light, and
+tapping it again goes Medium, Hard, then back to Light; dots in the tile's
+corner show which. For Paint that is how solid it is (Hard more solid, Light
+more see-through); for Spray, how much it sprays (Hard the most); for Smudge,
+how far it drags the paint (about 40, 240 and 450px at Large).
+
+Keyboard: ⌘/Ctrl+Z undo, ⇧⌘Z or Ctrl+Y redo, `[` and `]` change size.
