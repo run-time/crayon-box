@@ -51,10 +51,7 @@ body {
 }
 
 /* prevent double tab zoom on mobile devices */
-button,
-fx-button,
-fx-dropdown-menu,
-fx-dialog {
+* {
   touch-action: manipulation;
 }
 
