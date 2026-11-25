@@ -363,6 +363,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: var(--fx-spacing-03);
   padding-top: var(--fx-spacing-03);
+  touch-action: manipulation;
 }
 .actions fx-button { width: 100%; }
 .actions fx-button::part(button) { width: 100%; justify-content: center; }
