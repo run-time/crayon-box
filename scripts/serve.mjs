@@ -1,15 +1,12 @@
 // The app, served from public/ with nothing to build first:
 //   npm run dev            -> http://127.0.0.1:3000
 //   PORT=4000 npm run dev
-// /vendor/flare-ux/* is read straight from node_modules/@run.time/flare-ux,
-// so the page loads the same files here as it does on Vercel, where
-// `npm run build` copies them into public/vendor/.
+// Flare UX is loaded from its version-pinned CDN URL in index.html.
 
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { flareDir } from "./flare-path.mjs";
 import { coloringPages } from "./coloring-pages.mjs";
 
 const publicDir = fileURLToPath(new URL("../public", import.meta.url));
@@ -48,9 +45,7 @@ createServer(async (req, res) => {
       res.end(JSON.stringify(await coloringPages()));
       return;
     }
-    let file = path.startsWith("/vendor/flare-ux/")
-      ? inside(flareDir, path.slice("/vendor/flare-ux/".length))
-      : inside(publicDir, path);
+    let file = inside(publicDir, path);
     if (!file) {
       res.writeHead(403).end("Forbidden");
       return;

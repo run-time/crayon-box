@@ -10,10 +10,10 @@
     "build": "node scripts/build.mjs",
     "check": "node scripts/check.mjs"
   },
-  "dependencies": {
-    "@run.time/flare-ux": "^0.1.0"
-  },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@run.time/flare-ux": "0.1.0"
   }
 }

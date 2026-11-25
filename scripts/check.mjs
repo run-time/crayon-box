@@ -1,15 +1,18 @@
-// `npm run check`: every script parses, Flare UX is installed, and every
+// `npm run check`: every script parses, Flare UX is installed for validation, and every
 // fx-* element and flare-ux module the app names exists in the installed
 // package. Run before a deploy (Vercel runs it before the build).
 
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { flareDir } from "./flare-path.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const require = createRequire(import.meta.url);
+const flareDir = dirname(require.resolve("@run.time/flare-ux/package.json"));
+const flareVersion = JSON.parse(await readFile(join(flareDir, "package.json"), "utf8")).version;
 const problems = [];
 
 async function files(dir, ext) {
@@ -36,6 +39,10 @@ for (const file of scripts) {
 const appFiles = [...(await files(join(root, "public"), ".js")), ...(await files(join(root, "public"), ".html"))];
 const sources = await Promise.all(appFiles.map((f) => readFile(f, "utf8")));
 const text = sources.join("\n");
+
+if (!text.includes(`@run.time/flare-ux@${flareVersion}/`)) {
+  problems.push(`CDN URL must be pinned to installed Flare UX ${flareVersion}`);
+}
 
 for (const tag of new Set(text.match(/<fx-[a-z-]+/g) ?? [])) {
   const name = tag.slice(1);
