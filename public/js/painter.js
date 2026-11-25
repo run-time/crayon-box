@@ -48,6 +48,7 @@ export const SUNSET_STOPS = [...SUNSET_TOP, ...SUNSET_TOP.slice(0, -1).reverse()
 
 // How far above a floating piece its turn handle sits (css px).
 const ROTATE_GAP = 26;
+const ROTATE_HANDLE_RADIUS = 7;
 
 const SHAPE_PATH = Object.fromEntries(SHAPES.map((s) => [s.id, s.d]));
 // How see-through Paint is at each strength, in the order a tap steps through
@@ -101,6 +102,8 @@ export class Painter {
   paper = "#ffffff";
   /** Called when a stroke (or a fill) has finished changing the picture. */
   onChange = () => {};
+  /** Called when the floating selection moves or changes visibility. */
+  onSelectionChange = () => {};
 
   constructor(stage, ink, wet, paperLayer) {
     this.stage = stage;
@@ -146,7 +149,10 @@ export class Painter {
   fit(minWidth = 0, minHeight = 0) {
     const w = Math.max(Math.ceil(this.stage.clientWidth), minWidth);
     const h = Math.max(Math.ceil(this.stage.clientHeight), minHeight);
-    if (w <= this.width && h <= this.height) return;
+    if (w <= this.width && h <= this.height) {
+      this.onSelectionChange();
+      return;
+    }
     let old = null;
     if (this.width) {
       old = document.createElement("canvas");
@@ -297,9 +303,47 @@ export class Painter {
     return !!this.sel;
   }
 
+  /** The floating selection's axis-aligned bounds in stage coordinates. */
+  get selectionBounds() {
+    if (!this.sel) return null;
+    const { cx, cy, w, h, angle } = this.sel;
+    const c = Math.cos(angle), s = Math.sin(angle);
+    const corners = [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]]
+      .map(([x, y]) => ({ x: cx + x * c - y * s, y: cy + x * s + y * c }));
+    return {
+      left: Math.min(...corners.map(({ x }) => x)),
+      top: Math.min(...corners.map(({ y }) => y)),
+      right: Math.max(...corners.map(({ x }) => x)),
+      bottom: Math.max(...corners.map(({ y }) => y)),
+    };
+  }
+
+  /** The lowest point of the turn handle in stage coordinates. */
+  get selectionRotationHandleBottom() {
+    if (!this.sel) return null;
+    const { cy, h, angle } = this.sel;
+    return cy - (h / 2 + ROTATE_GAP) * Math.cos(angle) + ROTATE_HANDLE_RADIUS;
+  }
+
+  /** Stamp a copy of the floating piece without lifting or moving it. */
+  copySelection() {
+    if (!this.sel) return;
+    this.#stampSelection();
+    this.#drawSelection();
+    this.onChange();
+  }
+
   /** Stamp the floating piece down where it is. */
   commitSelection() {
     if (!this.sel) return;
+    this.#stampSelection();
+    this.sel = null;
+    this.#clearWet();
+    this.onSelectionChange();
+    this.onChange();
+  }
+
+  #stampSelection() {
     const { img, cx, cy, w, h, angle } = this.sel;
     const ctx = this.ctx;
     ctx.save();
@@ -308,9 +352,6 @@ export class Painter {
     ctx.rotate(angle);
     ctx.drawImage(img, -w / 2, -h / 2, w, h);
     ctx.restore();
-    this.sel = null;
-    this.#clearWet();
-    this.onChange();
   }
 
   /** Throw the floating piece away (it was already lifted off the picture). */
@@ -318,6 +359,7 @@ export class Painter {
     if (!this.sel) return;
     this.sel = null;
     this.#clearWet();
+    this.onSelectionChange();
     this.onChange();
   }
 
@@ -457,7 +499,7 @@ export class Painter {
     });
     const knob = (x, y, round) => {
       g.beginPath();
-      if (round) g.arc(x, y, 7, 0, Math.PI * 2);
+      if (round) g.arc(x, y, ROTATE_HANDLE_RADIUS, 0, Math.PI * 2);
       else g.rect(x - 6, y - 6, 12, 12);
       g.fillStyle = "#ffffff";
       g.fill();
@@ -468,6 +510,7 @@ export class Painter {
     knob(0, -h / 2 - ROTATE_GAP, true);
     for (const [x, y] of [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]]) knob(x, y, false);
     g.restore();
+    this.onSelectionChange();
   }
 
   /** A line that shows on any paper: white under dark dashes. */

@@ -549,6 +549,11 @@ body {
   max-width: none;
 }
 #wet { pointer-events: none; }
+.copy-selection {
+  position: absolute;
+  z-index: 1;
+  touch-action: manipulation;
+}
 /* A coloring page's lines, over the drawing: multiplied, so the page's white
    lets the coloring show through and only its lines stay on top. */
 .lines {

@@ -147,8 +147,26 @@ const app = document.querySelector(".app");
 const toolbox = document.querySelector(".toolbox");
 const stage = document.querySelector(".stage");
 const ring = document.querySelector(".cursor-ring");
+const copySelectionButton = document.getElementById("copy-selection");
 const painter = new Painter(stage, document.getElementById("ink"), document.getElementById("wet"), document.getElementById("paper"));
 const history = new History(painter.ink, { limit: 150, onChange: syncHistoryButtons });
+
+function positionCopySelectionButton() {
+  const bounds = painter.selectionBounds;
+  copySelectionButton.hidden = !bounds;
+  if (!bounds) return;
+  const width = copySelectionButton.offsetWidth;
+  const height = copySelectionButton.offsetHeight;
+  const left = Math.max(4, Math.min((bounds.left + bounds.right - width) / 2, stage.clientWidth - width - 4));
+  const belowSelection = Math.max(bounds.bottom, painter.selectionRotationHandleBottom) + 12;
+  const top = Math.max(4, Math.min(belowSelection, stage.clientHeight - height - 4));
+  copySelectionButton.style.left = `${left}px`;
+  copySelectionButton.style.top = `${top}px`;
+}
+
+painter.onSelectionChange = positionCopySelectionButton;
+copySelectionButton.addEventListener("pointerdown", (event) => event.stopPropagation());
+copySelectionButton.addEventListener("click", () => painter.copySelection());
 
 // -- Building the groups ----------------------------------------------------
 
