@@ -429,7 +429,6 @@ toolbox.addEventListener("click", (e) => {
 
 const customInput = document.getElementById("custom-color");
 customInput.addEventListener("input", () => choose("color", customInput.value));
-customInput.addEventListener("change", () => state.layout === "rail" && closePopover());
 // -- Coloring pages ------------------------------------------------------------------
 //
 // The pages are the images in public/assets/coloring-pages. The dev server lists
@@ -575,7 +574,6 @@ pictureInput.addEventListener("change", async () => {
 
 const customPaperInput = document.getElementById("custom-paper");
 customPaperInput.addEventListener("input", () => choose("paper", customPaperInput.value));
-customPaperInput.addEventListener("change", () => state.layout === "rail" && closePopover());
 
 // -- Popovers (row layout) -------------------------------------------------------
 
