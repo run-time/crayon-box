@@ -5,7 +5,8 @@ eraser, smudge (smears what is drawn) and move (box part of the picture, then
 move, resize or turn it), in 18 colors plus Rainbow (every brush cycles through the hues) and
 any color from a color wheel, six sizes (Tiny 1px to Gianormous 64px) and six tip shapes
 (round, square, triangle, star, heart, flower — a shaped tip stamps along the
-stroke), on 20 papers to match the 20 colors: 15 plain ones (White, Cream, Sunshine,
+stroke; non-round tips have a subtle gray edge so white shapes show on white),
+on 20 papers to match the 20 colors: 15 plain ones (White, Cream, Sunshine,
 Pink, Purple, Sky, Water, Grass, Silver, Ocean, Evergreen, Plum, Cherry,
 Cardboard, Chalkboard), Wood (public/assets/papers/wood.png), Sunset (a sunset
 down to a middle horizon, mirrored below it), Coloring Page (line art to color
@@ -58,18 +59,20 @@ connection to load the UI library. Import it as a new Vercel project
 | `scripts/coloring-pages.mjs` | Lists the coloring pages (dev server and build) |
 | `public/assets/` | Paper images (`papers/`) and coloring pages (`coloring-pages/`) |
 
-The toolbox has two layouts, toggled by clicking the Crayon Box logo and
-remembered per browser: a **sidebar** with every choice laid out, or a narrow
-**strip** down the left of round icon menus (brush, color, size, shape) that
-open popovers beside them, like the pickers in Star Jars — nearly the whole
-screen is paper, and the tools are still one tap away. Narrow screens start
-in the strip.
+The toolbox has two layouts, remembered per browser: a **sidebar** with every
+choice laid out, or a narrow **strip** down the left of round icon menus
+(brush, color, size, shape) that open popovers beside them, like the pickers in
+Star Jars — nearly the whole screen is paper, and the tools are still one tap
+away. Narrow screens start in the strip. Clicking the logo in Detail View
+enters Compact View; clicking the crayons in Compact View opens Settings,
+where Detail View returns to the sidebar.
 
-The ☰ menu holds Light Mode / Dark Mode (menus only), Detail View /
-Compact View (the same as clicking the logo), and New Picture / Save Picture.
-Undo and Redo sit below the logo; Share Picture opens the device's share sheet
-with the drawing as a PNG (choose Messages to text it). Clear All at the bottom
-wipes the paper (Undo brings it back). History keeps 150 steps.
+The ☰ menu (hamburger in Detail View, crayons in Compact View) holds New
+Picture / Save Picture, Detail View / Compact View, and Light Mode / Dark Mode
+(menus only, at the bottom). Undo and Redo sit below the logo; Share Picture
+opens the device's share sheet with the drawing as a PNG (choose Messages to
+text it). Clear All at the bottom wipes the paper (Undo brings it back).
+History keeps 150 steps.
 
 The picture autosaves to localStorage, so a refresh doesn't lose it.
 Paint, Spray and Smudge have three strengths: picking one starts at Light, and
@@ -77,5 +80,8 @@ tapping it again goes Medium, Hard, then back to Light; dots in the tile's
 corner show which. For Paint that is how solid it is (Hard more solid, Light
 more see-through); for Spray, how much it sprays (Hard the most); for Smudge,
 how far it drags the paint (about 40, 240 and 450px at Large).
+
+Eraser starts at Gianormous and Round, then restores the previous size and
+shape when you switch to another brush.
 
 Keyboard: ⌘/Ctrl+Z undo, ⇧⌘Z or Ctrl+Y redo, `[` and `]` change size.

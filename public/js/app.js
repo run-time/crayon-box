@@ -8,6 +8,7 @@
 
 import "@run.time/flare-ux/components/fx-button.js";
 import "@run.time/flare-ux/components/fx-icon.js";
+import "@run.time/flare-ux/components/fx-spinner.js";
 import "@run.time/flare-ux/components/fx-dropdown-menu.js";
 import "@run.time/flare-ux/components/fx-dialog.js";
 import { toast } from "@run.time/flare-ux/components/fx-toast.js";
@@ -122,6 +123,10 @@ const state = {
   color: saved.color === "rainbow" || /^#[0-9a-f]{6}$/i.test(saved.color ?? "") ? saved.color : DEFAULTS.color,
   size: SIZES.some((s) => s.id === saved.size) ? saved.size : DEFAULTS.size,
   shape: SHAPES.some((s) => s.id === saved.shape) ? saved.shape : DEFAULTS.shape,
+  eraserPrevious: {
+    size: SIZES.some((s) => s.id === saved.eraserPrevious?.size) ? saved.eraserPrevious.size : DEFAULTS.size,
+    shape: SHAPES.some((s) => s.id === saved.eraserPrevious?.shape) ? saved.eraserPrevious.shape : DEFAULTS.shape,
+  },
   paper:
     (saved.paper === "picture" ? store.raw(PICTURE_KEY) : PAPERS.some((p) => p.value === saved.paper)) || /^#[0-9a-f]{6}$/i.test(saved.paper ?? "")
       ? saved.paper
@@ -250,7 +255,9 @@ function render() {
     trigger.title = trigger.getAttribute("aria-label");
   }
   toolbox.querySelector('[data-trigger="color"] .crayon').classList.toggle("is-rainbow", rainbow);
-  toolbox.querySelector('[data-trigger="brush"] .trigger-face').innerHTML =
+  const brushTrigger = toolbox.querySelector('[data-trigger="brush"]');
+  brushTrigger.classList.toggle("has-strength", STRENGTH_BRUSHES.includes(state.brush));
+  brushTrigger.querySelector(".trigger-face").innerHTML =
     `<fx-icon name="crayon:${state.brush}" size="28"></fx-icon>` + (STRENGTH_BRUSHES.includes(state.brush) ? pipsHtml(state.brush) : "");
   // The Paint, Spray and Smudge tiles: their pips show the strength, and their names say it.
   for (const brush of STRENGTH_BRUSHES) {
@@ -271,7 +278,9 @@ function render() {
   const toggle = document.getElementById("layout-toggle");
   const folded = state.layout === "rail";
   toggle.setAttribute("aria-expanded", String(!folded));
-  toggle.setAttribute("aria-label", folded ? "Open the tool sidebar" : "Fold tools into a strip");
+  toggle.setAttribute("aria-label", folded ? "Open the settings menu" : "Fold tools into a strip");
+  toggle.setAttribute("aria-hidden", String(folded));
+  toggle.tabIndex = folded ? -1 : 0;
   toggle.title = toggle.getAttribute("aria-label");
 
   renderSettings();
@@ -343,6 +352,11 @@ function strengthOf(brush) {
   return PAINT_STRENGTHS.find((p) => p.id === state[brush]);
 }
 
+function restoreEraserSettings() {
+  state.size = state.eraserPrevious.size;
+  state.shape = state.eraserPrevious.shape;
+}
+
 function choose(group, value) {
   // Leaving the Move tool sets down whatever is floating.
   if (group === "brush" && value !== "move") {
@@ -355,8 +369,13 @@ function choose(group, value) {
     state[value] = state.brush === value ? PAINT_STRENGTHS[(i + 1) % PAINT_STRENGTHS.length].id : PAINT_STRENGTHS[0].id;
   }
   if (group === "brush" && value === "eraser") {
+    if (state.brush !== "eraser") {
+      state.eraserPrevious = { size: state.size, shape: state.shape };
+    }
     state.size = "xxl";
     state.shape = "round";
+  } else if (state.brush === "eraser" && (group === "brush" || group === "color")) {
+    restoreEraserSettings();
   }
   state[group] = value;
   // Picking a color while erasing or smudging means "I want to draw again".
@@ -422,13 +441,14 @@ async function loadColoringPages() {
     state.coloring = null;
     if (state.paper === "coloring") state.paper = DEFAULTS.paper;
   }
-  showColoringPage();
+  await showColoringPage();
 }
 
 /** Put the chosen page on its tile, and give its lines to the painter (for Fill and Save). */
 function showColoringPage() {
   const tile = toolbox.querySelector('.opt[data-value="coloring"]');
   const url = state.coloring ? `${COLORING_DIR}${encodeURIComponent(state.coloring)}` : null;
+  let pageImageReady = Promise.resolve();
   tile.classList.toggle("has-picture", !!url);
   tile.style.setProperty("--p", url ? `url("${url}") center / contain no-repeat, #ffffff` : "transparent");
   for (const b of coloringGrid.querySelectorAll(".coloring-choice")) b.setAttribute("aria-pressed", String(b.dataset.file === state.coloring));
@@ -437,21 +457,27 @@ function showColoringPage() {
   } else if (painter.lines?.dataset.file !== state.coloring) {
     const img = new Image();
     img.dataset.file = state.coloring;
-    img.onload = () => {
-      if (img.dataset.file !== state.coloring) return;
-      painter.lines = img;
-      if (!state.coloringRect) {
-        // Place the page once: the whole page, fitted and centered on the paper as it is now.
-        const W = stage.clientWidth, H = stage.clientHeight;
-        const scale = Math.min(W / img.naturalWidth, H / img.naturalHeight);
-        const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
-        state.coloringRect = { x: (W - w) / 2, y: (H - h) / 2, w, h };
-        render();
-      }
-    };
+    pageImageReady = new Promise((resolve) => {
+      img.onload = () => {
+        if (img.dataset.file === state.coloring) {
+          painter.lines = img;
+          if (!state.coloringRect) {
+            // Place the page once: the whole page, fitted and centered on the paper as it is now.
+            const W = stage.clientWidth, H = stage.clientHeight;
+            const scale = Math.min(W / img.naturalWidth, H / img.naturalHeight);
+            const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
+            state.coloringRect = { x: (W - w) / 2, y: (H - h) / 2, w, h };
+            render();
+          }
+        }
+        resolve();
+      };
+      img.onerror = resolve;
+    });
     img.src = url;
   }
   render();
+  return pageImageReady;
 }
 
 function openColoringChooser() {
@@ -473,7 +499,7 @@ coloringGrid.addEventListener("click", (e) => {
   if (state.layout === "rail") closePopover();
 });
 
-loadColoringPages();
+const coloringPagesReady = loadColoringPages();
 
 // -- Wood paper: its image, for Save ---------------------------------------------------
 
@@ -544,6 +570,7 @@ function openPopover(group) {
   section.dataset.open = "";
   section.querySelector(".group-trigger").setAttribute("aria-expanded", "true");
   placePopover();
+  const panel = section.querySelector(".group-panel");
   panel.querySelector('[aria-pressed="true"]')?.focus({ preventScroll: true });
 }
 
@@ -719,7 +746,10 @@ async function sharePicture() {
   }
 }
 
-document.getElementById("layout-toggle").addEventListener("click", () => setLayout(state.layout === "rail" ? "sidebar" : "rail"));
+document.getElementById("layout-toggle").addEventListener("click", () => {
+  if (state.layout === "rail") settings.querySelector('[slot="trigger"]').click();
+  else setLayout("rail");
+});
 
 // -- Keyboard ----------------------------------------------------------------------
 
@@ -792,7 +822,7 @@ render();
 // The saved layout is in place; from now on, folding the sidebar slides.
 requestAnimationFrame(() => requestAnimationFrame(() => app.classList.remove("no-slide")));
 
-(async () => {
+const drawingReady = (async () => {
   const drawing = store.raw(DRAWING_KEY);
   if (drawing?.startsWith("data:image/png")) {
     try {
@@ -803,5 +833,18 @@ requestAnimationFrame(() => requestAnimationFrame(() => app.classList.remove("no
       await drawBlob(painter.ink, blob);
     } catch {}
   }
-  history.push();
+  await history.push();
 })();
+
+const pageLoadReady =
+  document.readyState === "complete"
+    ? Promise.resolve()
+    : new Promise((resolve) => window.addEventListener("load", resolve, { once: true }));
+const minimumLoadingTime = new Promise((resolve) => {
+  setTimeout(resolve, Math.max(0, 2000 - performance.now()));
+});
+
+Promise.all([pageLoadReady, coloringPagesReady, drawingReady, minimumLoadingTime]).then(() => {
+  document.getElementById("loading-screen").hidden = true;
+  app.classList.remove("is-loading");
+});

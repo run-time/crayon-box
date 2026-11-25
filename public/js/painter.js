@@ -746,13 +746,12 @@ export class Painter {
     const size = this.stampSize * (0.4 + p.pressure * 1.2);
     const outline = shapeAt(SHAPE_PATH[this.shape], p.x, p.y, size);
     ctx.fill(outline);
-    // A flower gets a middle in the opposite color, and a faint edge (not when erasing).
     if (this.shape === "flower" && this.brush !== "eraser") {
       const center = flowerCenterOf(this.inkColor);
       ctx.fillStyle = this.brush === "crayon" ? this.#crayonPattern(center) : center;
       ctx.fill(shapeAt(FLOWER_CENTER, p.x, p.y, size));
-      this.#flowerEdge(ctx, outline, p.x, p.y, size);
     }
+    if (this.shape !== "round" && this.brush !== "eraser") this.#shapeEdge(ctx, outline, p.x, p.y, size);
     ctx.restore();
   }
 
@@ -781,29 +780,21 @@ export class Painter {
       const shape = shapeAt(d, x, y, size, angle);
       ctx.fillStyle = color;
       ctx.fill(shape);
-      if (s < 15 && l > 85 && this.shape !== "flower") { // flowers get their own edge below
-        // White on white paper: a faint gray edge, so each one still shows.
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.18)";
-        ctx.lineWidth = 1;
-        ctx.stroke(shape);
-      }
       if (this.shape === "flower") {
         ctx.fillStyle = flowerCenterOf(color);
         ctx.fill(shapeAt(FLOWER_CENTER, x, y, size, angle));
-        this.#flowerEdge(ctx, shape, x, y, size);
       }
+      if (this.shape !== "round") this.#shapeEdge(ctx, shape, x, y, size);
     }
     ctx.restore();
   }
 
   /**
-   * A faint middle-gray edge around a flower (centered on x, y, `size` across),
-   * so white ones show on white paper and black ones on black. Only the
-   * outside: the edge is drawn on a scratch canvas, the flower's whole shape is
-   * cut out of it, and the ring that is left goes onto the picture. So nothing
-   * shows inside, even through crayon speckles or see-through paint.
+   * A faint middle-gray edge outside a non-round shape, so white ones show on
+   * white paper and black ones on black. Cutting the shape out of the scratch
+   * canvas keeps the ring outside, even through crayon speckles or see-through paint.
    */
-  #flowerEdge(ctx, outline, x, y, size) {
+  #shapeEdge(ctx, outline, x, y, size) {
     const d = this.dpr;
     const half = size * 0.6 + 3;
     const x0 = Math.floor((x - half) * d);

@@ -11,6 +11,7 @@
   --fx-interactive-text: var(--fx-color-purple-60);
   --fx-interactive-subtle: var(--fx-color-purple-10);
   --fx-focus: var(--fx-color-purple-60);
+  --action-icon-color: var(--fx-color-black);
   --ink: #e53935;
   --toolbox-width: 300px;
   --rail-width: 64px;
@@ -28,6 +29,7 @@
     --fx-interactive-text: var(--fx-color-purple-40);
     --fx-interactive-subtle: color-mix(in srgb, var(--fx-color-purple-60) 22%, var(--fx-layer));
     --fx-focus: var(--fx-color-white);
+    --action-icon-color: var(--fx-color-white);
   }
 }
 :root[data-fx-theme="dark"] {
@@ -36,6 +38,7 @@
   --fx-interactive-text: var(--fx-color-purple-40);
   --fx-interactive-subtle: color-mix(in srgb, var(--fx-color-purple-60) 22%, var(--fx-layer));
   --fx-focus: var(--fx-color-white);
+  --action-icon-color: var(--fx-color-white);
 }
 
 fx-popup-alert { --fx-status-error-on: var(--fx-color-white); }
@@ -112,7 +115,7 @@ body {
 /* The sidebar shows the full logo; the strip only its crayons. */
 /* Drawn at the strip's scale (32px per 67 logo units), so folding the sidebar
    leaves the crayons the same size. */
-.brand-full { width: 154px; height: 38px; }
+.brand-full { width: 162px; height: 38px; }
 .brand-mark { display: none; width: 34px; height: 34px; }
 
 .groups {
@@ -204,7 +207,7 @@ body {
 .pips i.on { background: currentColor; opacity: 1; }
 .opt:not([aria-pressed="true"]) .pips { display: none; }
 .trigger-face { position: relative; }
-.group-trigger .pips { top: -8px; left: -10px; }
+.group-trigger .pips { top: -6px; left: -6px; }
 .grid-shape .opt { color: var(--ink); }
 /* A 1px outline in the text color (dark on light menus, light on dark ones),
    so a shape or size dot shows in any ink, white included. */
@@ -216,7 +219,7 @@ body {
     drop-shadow(0 1px 0 var(--ink-edge)) drop-shadow(0 -1px 0 var(--ink-edge));
 }
 
-/* In the strip, an open button is a dark circle: the crayon (in the chosen
+/* In the strip, an open button is a dark rectangle: the crayon (in the chosen
    color) gets a thin light outline there, so even a black crayon stays visible. */
 .group-trigger[aria-expanded="true"] .crayon-wrap {
   filter:
@@ -394,13 +397,30 @@ body {
   scrollbar-width: none;
 }
 .app[data-layout="rail"] .toolbox-head {
+  position: relative;
   flex-direction: column;
   gap: var(--fx-spacing-02);
 }
 .app[data-layout="rail"] .brand-full { display: none; }
 .app[data-layout="rail"] .brand-mark { display: block; }
 .app[data-layout="rail"] .brand { padding: var(--fx-spacing-02); }
-.app[data-layout="rail"] .head-buttons { flex-direction: column; }
+.app[data-layout="rail"] .head-buttons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  flex-direction: column;
+}
+.app[data-layout="rail"] #settings {
+  --fx-dropdown-menu-trigger-size: 48px;
+  --fx-dropdown-menu-trigger-radius: 0;
+}
+.app[data-layout="rail"] #settings [slot="trigger"] { visibility: hidden; }
+.app[data-layout="rail"] #settings::part(trigger),
+.app[data-layout="rail"] #settings::part(trigger):hover {
+  background: transparent;
+  color: transparent;
+}
 .app[data-layout="rail"] .brand-mark { width: 32px; height: 32px; }
 
 .app[data-layout="rail"] .groups {
@@ -423,13 +443,20 @@ body {
   color: var(--fx-text);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: transform var(--fx-duration-fast-02) var(--fx-easing-standard), background-color var(--fx-duration-fast-02);
+  transition: background-color var(--fx-duration-fast-02);
 }
-.app[data-layout="rail"] .group-trigger:hover { background: var(--fx-layer-hover); transform: scale(1.06); }
-.app[data-layout="rail"] .group-trigger:active { transform: scale(0.95); }
+.app[data-layout="rail"] .group-trigger:hover {
+  border-radius: var(--fx-radius-sm);
+  background: var(--fx-layer-hover);
+}
 .app[data-layout="rail"] .group-trigger[aria-expanded="true"] {
+  border-radius: var(--fx-radius-sm);
   background: var(--picked-bg);
   color: var(--picked-text);
+}
+.app[data-layout="rail"] .group-trigger[data-trigger="brush"].has-strength[aria-expanded="true"] {
+  background: var(--fx-color-black);
+  color: var(--fx-color-white);
 }
 .trigger-face { display: grid; place-items: center; }
 .group-trigger .crayon { --c: var(--ink); --band: var(--ink-band); width: 12px; height: 38px; }
@@ -496,6 +523,9 @@ body {
   justify-content: center;
 }
 .app[data-layout="rail"] .btn-text { display: none; }
+/* The hidden labels leave an empty text slot inside fx-button's flex gap. */
+.app[data-layout="rail"] :is(.actions, .share-actions, .clear-actions) fx-button::part(button) { gap: 0; }
+.app[data-layout="rail"] :is(.actions, .share-actions, .clear-actions) fx-button::part(icon) { transform: scale(1.2); }
 
 /* -- The paper ---------------------------------------------------------------- */
 
