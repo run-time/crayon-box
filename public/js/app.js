@@ -355,6 +355,10 @@ function choose(group, value) {
     const i = PAINT_STRENGTHS.findIndex((p) => p.id === state[value]);
     state[value] = state.brush === value ? PAINT_STRENGTHS[(i + 1) % PAINT_STRENGTHS.length].id : PAINT_STRENGTHS[0].id;
   }
+  if (group === "brush" && value === "eraser") {
+    state.size = "xxl";
+    state.shape = "round";
+  }
   state[group] = value;
   // Picking a color while erasing or smudging means "I want to draw again".
   if (group === "color" && (state.brush === "eraser" || state.brush === "smudge")) state.brush = "crayon";

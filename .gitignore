@@ -1,5 +1,4 @@
 node_modules/
-public/vendor/
 .vercel/
 .DS_Store
 *.log

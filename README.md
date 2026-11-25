@@ -21,10 +21,10 @@ what is on screen, on its paper. The menus
 have their own light/dark toggle; the paper keeps its color either way.
 
 Built like [Flare UX](https://flare-ux.vercel.app): native web components,
-plain ES modules, no framework and no bundler. The UI uses
-[`@run.time/flare-ux`](https://www.npmjs.com/package/@run.time/flare-ux) from
-npm (buttons, icons, the confirm dialog, toasts, and its color/type/spacing
-tokens).
+plain ES modules, no framework and no bundler. The UI loads the
+version-pinned [`@run.time/flare-ux`](https://www.npmjs.com/package/@run.time/flare-ux)
+package from jsDelivr (buttons, icons, the confirm dialog, toasts, and its
+color/type/spacing tokens).
 
 ## Run it
 
@@ -32,27 +32,29 @@ tokens).
 npm install
 npm run dev      # http://127.0.0.1:3000  (PORT=4000 npm run dev)
 npm run check    # scripts parse; every fx-* element and flare-ux import exists
-npm run build    # copies flare-ux into public/vendor for static hosting
+npm run build    # writes the coloring-page index for static hosting
 ```
 
 ## Deploy (Vercel)
 
 `vercel.json` runs `npm run check && npm run build` and serves `public/`.
-Import it as a new Vercel project (framework: Other) or run `vercel` here.
+Flare UX is loaded from jsDelivr at version 0.1.0, so visitors need an internet
+connection to load the UI library. Import it as a new Vercel project
+(framework: Other) or run `vercel` here.
 
 ## How it fits together
 
 | Path | What it is |
 |---|---|
-| `public/index.html` | The page; an import map points `@run.time/flare-ux/…` at `/vendor/flare-ux/src/…` |
+| `public/index.html` | The page; an import map points `@run.time/flare-ux/…` at jsDelivr |
 | `public/app.css` | Layout and look, drawn with Flare UX tokens |
 | `public/js/app.js` | The toolbox: sidebar ⇄ strip of icon menus, choices, ☰ menu, undo/redo, save, autosave |
 | `public/js/painter.js` | The drawing engine (strokes, stamps, sparkle spray, smudge, flood fill) |
 | `public/js/shapes.js` | Tip shapes, shared by the stamps and their buttons |
 | `public/js/icons.js` | Brush and shape icons, registered as Flare UX icon sets (`crayon:*`, `shape:*`) |
 | `public/js/history.js` | Undo/redo as PNG snapshots |
-| `scripts/serve.mjs` | Node dev server; serves `/vendor/flare-ux/` straight from node_modules |
-| `scripts/build.mjs` | Copies flare-ux into `public/vendor/` for Vercel |
+| `scripts/serve.mjs` | Node dev server for the app and live coloring-page list |
+| `scripts/build.mjs` | Writes the coloring-page index for static hosting |
 | `scripts/coloring-pages.mjs` | Lists the coloring pages (dev server and build) |
 | `public/assets/` | Paper images (`papers/`) and coloring pages (`coloring-pages/`) |
 

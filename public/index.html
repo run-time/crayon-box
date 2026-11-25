@@ -7,10 +7,9 @@
   <meta name="description" content="Crayon Box: a drawing app for kids, with crayons, markers, paint, sparkles and stamps." />
   <meta name="theme-color" content="#ffffff" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="/vendor/flare-ux/src/styles/flare.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@run.time/flare-ux@0.1.0/src/styles/flare.css" />
   <link rel="stylesheet" href="/app.css" />
-  <!-- Bare "@run.time/flare-ux" imports resolve to the copy served from
-       /vendor (node_modules in dev, copied there by `npm run build`). -->
+  <!-- Pin the browser imports to the same release used by the local checks. -->
   <script>
     // The menus' theme picked last time (the paper keeps its own color), before anything paints.
     try {
@@ -21,8 +20,8 @@
   <script type="importmap">
     {
       "imports": {
-        "@run.time/flare-ux": "/vendor/flare-ux/src/index.js",
-        "@run.time/flare-ux/": "/vendor/flare-ux/src/"
+        "@run.time/flare-ux": "https://cdn.jsdelivr.net/npm/@run.time/flare-ux@0.1.0/src/index.js",
+        "@run.time/flare-ux/": "https://cdn.jsdelivr.net/npm/@run.time/flare-ux@0.1.0/src/"
       }
     }
   </script>
