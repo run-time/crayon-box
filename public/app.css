@@ -38,6 +38,8 @@
   --fx-focus: var(--fx-color-white);
 }
 
+fx-popup-alert { --fx-status-error-on: var(--fx-color-white); }
+
 html,
 body {
   height: 100%;
