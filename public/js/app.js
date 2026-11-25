@@ -579,6 +579,7 @@ const buttons = {
   undo: document.getElementById("undo"),
   redo: document.getElementById("redo"),
   clear: document.getElementById("clear"),
+  share: document.getElementById("share"),
 };
 
 function syncHistoryButtons() {
@@ -620,6 +621,7 @@ buttons.redo.addEventListener("click", () => {
   rememberAfter(history.redo());
 });
 buttons.clear.addEventListener("click", clearPicture);
+buttons.share.addEventListener("click", sharePicture);
 
 /** Clear the paper at once. No question asked; Undo brings it back. */
 function clearPicture() {
@@ -651,19 +653,70 @@ async function newPicture() {
   remember();
 }
 
-function savePicture() {
+function pictureBlob() {
   painter.commitSelection();
-  painter.flatten().toBlob((blob) => {
-    if (!blob) return;
-    const stamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, "-");
-    const link = Object.assign(document.createElement("a"), {
-      href: URL.createObjectURL(blob),
-      download: `crayon-box-${stamp}.png`,
-    });
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+  return new Promise((resolve, reject) => {
+    painter.flatten().toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("The drawing could not be exported as a PNG."));
+    }, "image/png");
+  });
+}
+
+function pictureFilename() {
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, "-");
+  return `crayon-box-${stamp}.png`;
+}
+
+function downloadPicture(blob) {
+  const link = Object.assign(document.createElement("a"), {
+    href: URL.createObjectURL(blob),
+    download: pictureFilename(),
+  });
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+}
+
+async function savePicture() {
+  try {
+    downloadPicture(await pictureBlob());
     toast("Your picture is saved!", { tone: "success" });
-  }, "image/png");
+  } catch (error) {
+    console.error("Could not save the drawing:", error);
+    toast("Couldn't save the picture. Please try again.", { tone: "error" });
+  }
+}
+
+async function sharePicture() {
+  let blob;
+  try {
+    blob = await pictureBlob();
+  } catch (error) {
+    console.error("Could not prepare the drawing for sharing:", error);
+    toast("Couldn't prepare the picture to share. Please try again.", { tone: "error" });
+    return;
+  }
+
+  if (typeof File === "undefined" || typeof navigator.share !== "function" || typeof navigator.canShare !== "function") {
+    downloadPicture(blob);
+    toast("Sharing isn't available here. Your picture was downloaded instead.", { tone: "info" });
+    return;
+  }
+
+  const file = new File([blob], pictureFilename(), { type: "image/png" });
+  if (!navigator.canShare({ files: [file] })) {
+    downloadPicture(blob);
+    toast("Sharing pictures isn't supported here. Your picture was downloaded instead.", { tone: "info" });
+    return;
+  }
+
+  try {
+    await navigator.share({ title: "Crayon Box picture", files: [file] });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") return;
+    console.error("Could not share the drawing:", error);
+    toast("Couldn't share the picture. Try Save Picture instead.", { tone: "error" });
+  }
 }
 
 document.getElementById("layout-toggle").addEventListener("click", () => setLayout(state.layout === "rail" ? "sidebar" : "rail"));

@@ -368,6 +368,10 @@ body {
 .actions fx-button { width: 100%; }
 .actions fx-button::part(button) { width: 100%; justify-content: center; }
 
+.share-actions { width: 100%; }
+.share-actions fx-button { width: 100%; }
+.share-actions fx-button::part(button) { width: 100%; justify-content: center; }
+
 .clear-actions { width: 100%; margin-top: auto; padding-top: var(--fx-spacing-03); }
 .clear-actions fx-button { width: 100%; }
 .clear-actions fx-button::part(button) { width: 100%; justify-content: center; }
@@ -473,6 +477,13 @@ body {
 }
 .app[data-layout="rail"] .actions fx-button { width: auto; }
 .app[data-layout="rail"] .actions fx-button::part(button) {
+  width: 44px;
+  padding-inline: 0;
+  justify-content: center;
+}
+.app[data-layout="rail"] .share-actions { width: auto; }
+.app[data-layout="rail"] .share-actions fx-button { width: auto; }
+.app[data-layout="rail"] .share-actions fx-button::part(button) {
   width: 44px;
   padding-inline: 0;
   justify-content: center;

@@ -67,8 +67,9 @@ in the strip.
 
 The ☰ menu holds Light Mode / Dark Mode (menus only), Detail View /
 Compact View (the same as clicking the logo), and New Picture / Save Picture.
-Undo and Redo sit below the logo; Clear All at the bottom wipes the paper
-(Undo brings it back). History keeps 150 steps.
+Undo and Redo sit below the logo; Share Picture opens the device's share sheet
+with the drawing as a PNG (choose Messages to text it). Clear All at the bottom
+wipes the paper (Undo brings it back). History keeps 150 steps.
 
 The picture autosaves to localStorage, so a refresh doesn't lose it.
 Paint, Spray and Smudge have three strengths: picking one starts at Light, and
