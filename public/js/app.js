@@ -754,7 +754,7 @@ async function sharePicture() {
   }
 
   try {
-    await navigator.share({ title: "Crayon Box picture", files: [file] });
+    await navigator.share({ title: "", files: [file] });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") return;
     console.error("Could not share the drawing:", error);
