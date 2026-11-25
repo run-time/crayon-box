@@ -323,7 +323,6 @@ settings.addEventListener("fx:menu-select", (e) => {
   const value = e.detail.value;
   if (value === "light" || value === "dark") setTheme(value);
   else if (value === "sidebar" || value === "rail") setLayout(value);
-  else if (value === "erase") clearPicture();
   else if (value === "new") newPicture();
   else if (value === "save") savePicture();
 });
@@ -579,6 +578,7 @@ document.addEventListener("pointerdown", (e) => {
 const buttons = {
   undo: document.getElementById("undo"),
   redo: document.getElementById("redo"),
+  clear: document.getElementById("clear"),
 };
 
 function syncHistoryButtons() {
@@ -619,8 +619,9 @@ buttons.redo.addEventListener("click", () => {
   painter.commitSelection();
   rememberAfter(history.redo());
 });
+buttons.clear.addEventListener("click", clearPicture);
 
-/** Erase All (menu): wipe the paper at once. No question asked; Undo brings it back. */
+/** Clear the paper at once. No question asked; Undo brings it back. */
 function clearPicture() {
   painter.commitSelection();
   painter.clear();

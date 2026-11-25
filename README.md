@@ -65,10 +65,10 @@ open popovers beside them, like the pickers in Star Jars — nearly the whole
 screen is paper, and the tools are still one tap away. Narrow screens start
 in the strip.
 
-The ☰ menu holds Erase All (wipes the paper at once; Undo brings it
-back), Light Mode / Dark Mode (menus only), Detail View /
+The ☰ menu holds Light Mode / Dark Mode (menus only), Detail View /
 Compact View (the same as clicking the logo), and New Picture / Save Picture.
-Undo and Redo stay visible at the bottom of the toolbox, with 150 steps.
+Undo and Redo sit below the logo; Clear All at the bottom wipes the paper
+(Undo brings it back). History keeps 150 steps.
 
 The picture autosaves to localStorage, so a refresh doesn't lose it.
 Paint, Spray and Smudge have three strengths: picking one starts at Light, and

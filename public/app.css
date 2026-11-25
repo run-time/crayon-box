@@ -365,6 +365,10 @@ body {
 .actions fx-button { width: 100%; }
 .actions fx-button::part(button) { width: 100%; justify-content: center; }
 
+.clear-actions { width: 100%; margin-top: auto; padding-top: var(--fx-spacing-03); }
+.clear-actions fx-button { width: 100%; }
+.clear-actions fx-button::part(button) { width: 100%; justify-content: center; }
+
 /* -- The toolbox, folded into a strip of icon menus down the left -------------
    Only a narrow strip stays beside the paper; each group is a round button
    showing what is picked, and its choices open in a popover to its right.
@@ -466,6 +470,13 @@ body {
 }
 .app[data-layout="rail"] .actions fx-button { width: auto; }
 .app[data-layout="rail"] .actions fx-button::part(button) {
+  width: 44px;
+  padding-inline: 0;
+  justify-content: center;
+}
+.app[data-layout="rail"] .clear-actions { width: auto; }
+.app[data-layout="rail"] .clear-actions fx-button { width: auto; }
+.app[data-layout="rail"] .clear-actions fx-button::part(button) {
   width: 44px;
   padding-inline: 0;
   justify-content: center;

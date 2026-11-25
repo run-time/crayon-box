@@ -51,8 +51,6 @@
         <div class="head-buttons">
           <fx-dropdown-menu id="settings" label="Settings" title="Settings">
             <fx-icon slot="trigger" name="menu" size="22"></fx-icon>
-            <button data-value="erase"><fx-icon name="close" size="18"></fx-icon><span>Erase All</span></button>
-            <hr />
             <button data-value="light" data-check="theme"><fx-icon name="sun" size="18"></fx-icon><span>Light Mode</span><fx-icon class="menu-check" name="check" size="18"></fx-icon></button>
             <button data-value="dark" data-check="theme"><fx-icon name="moon" size="18"></fx-icon><span>Dark Mode</span><fx-icon class="menu-check" name="check" size="18"></fx-icon></button>
             <hr />
@@ -69,7 +67,6 @@
         <fx-button id="undo" icon="undo" aria-label="Undo" title="Undo" disabled><span class="btn-text">Undo</span></fx-button>
         <fx-button id="redo" icon="redo" aria-label="Redo" title="Redo" disabled><span class="btn-text">Redo</span></fx-button>
       </div>
-
       <div class="groups">
         <section class="group" data-group="brush">
           <button type="button" class="group-trigger" data-trigger="brush" aria-expanded="false" aria-haspopup="dialog">
@@ -122,6 +119,9 @@
         </section>
       </div>
 
+      <div class="clear-actions">
+        <fx-button id="clear" variant="danger" icon="close" aria-label="Clear All" title="Clear All"><span class="btn-text">Clear All</span></fx-button>
+      </div>
     </aside>
 
     <main class="stage" aria-label="Drawing paper">
