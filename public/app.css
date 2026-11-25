@@ -360,7 +360,6 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--fx-spacing-03);
-  margin-top: auto;
   padding-top: var(--fx-spacing-03);
 }
 .actions fx-button { width: 100%; }
@@ -463,7 +462,6 @@ body {
   gap: var(--fx-spacing-02);
 }
 .app[data-layout="rail"] .actions {
-  margin-top: auto;
   padding-top: var(--fx-spacing-03);
 }
 .app[data-layout="rail"] .actions fx-button { width: auto; }

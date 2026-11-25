@@ -65,6 +65,11 @@
         </div>
       </header>
 
+      <div class="actions">
+        <fx-button id="undo" icon="undo" aria-label="Undo" title="Undo" disabled><span class="btn-text">Undo</span></fx-button>
+        <fx-button id="redo" icon="redo" aria-label="Redo" title="Redo" disabled><span class="btn-text">Redo</span></fx-button>
+      </div>
+
       <div class="groups">
         <section class="group" data-group="brush">
           <button type="button" class="group-trigger" data-trigger="brush" aria-expanded="false" aria-haspopup="dialog">
@@ -117,10 +122,6 @@
         </section>
       </div>
 
-      <div class="actions">
-        <fx-button id="undo" icon="undo" aria-label="Undo" title="Undo" disabled><span class="btn-text">Undo</span></fx-button>
-        <fx-button id="redo" icon="redo" aria-label="Redo" title="Redo" disabled><span class="btn-text">Redo</span></fx-button>
-      </div>
     </aside>
 
     <main class="stage" aria-label="Drawing paper">
