@@ -212,9 +212,9 @@ fill(
   "paper",
   PAPERS.map((p) =>
     p.value === "picture"
-      ? option("paper", p.value, "Picture: upload a photo", `<span class="paper-sheet"></span><fx-icon name="image" size="22"></fx-icon>`)
+      ? option("paper", p.value, "Picture: upload a photo", `<span class="paper-sheet"></span><fx-icon name="upload" size="22"></fx-icon>`)
       : p.value === "coloring"
-      ? option("paper", p.value, "Coloring Page: pick one", `<span class="paper-sheet"></span><fx-icon name="crayon:crayon" size="22"></fx-icon>`)
+      ? option("paper", p.value, "Coloring Page: pick one", `<span class="paper-sheet"></span><fx-icon name="image" size="22"></fx-icon>`)
       : option("paper", p.value, p.label, `<span class="paper-sheet"></span>`, `style="--p:${paperCss(p.value, 96)}"`),
   ).join("") +
     `<label class="opt custom" title="Custom" aria-label="Custom paper"><span class="wheel"></span><input type="color" id="custom-paper" /></label>`,
@@ -429,7 +429,6 @@ toolbox.addEventListener("click", (e) => {
 
 const customInput = document.getElementById("custom-color");
 customInput.addEventListener("input", () => choose("color", customInput.value));
-customInput.addEventListener("change", () => state.layout === "rail" && closePopover());
 // -- Coloring pages ------------------------------------------------------------------
 //
 // The pages are the images in public/assets/coloring-pages. The dev server lists
@@ -575,7 +574,6 @@ pictureInput.addEventListener("change", async () => {
 
 const customPaperInput = document.getElementById("custom-paper");
 customPaperInput.addEventListener("input", () => choose("paper", customPaperInput.value));
-customPaperInput.addEventListener("change", () => state.layout === "rail" && closePopover());
 
 // -- Popovers (row layout) -------------------------------------------------------
 
