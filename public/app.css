@@ -50,6 +50,14 @@ body {
   overscroll-behavior: none;
 }
 
+/* prevent double tab zoom on mobile devices */
+button,
+fx-button,
+fx-dropdown-menu,
+fx-dialog {
+  touch-action: manipulation;
+}
+
 .app {
   display: grid;
   grid-template-columns: var(--toolbox-width) minmax(0, 1fr);
