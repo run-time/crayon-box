@@ -297,7 +297,7 @@ body {
 
 /* Paper: a little sheet in each paper color. */
 .grid-paper { grid-template-columns: repeat(5, 1fr); }
-/* Picture: an image icon until a photo is uploaded, then the photo itself. */
+/* Picture: an upload icon until a photo is uploaded, then the photo itself. */
 .opt:is([data-value="picture"], [data-value="coloring"]) .paper-sheet { display: none; }
 .opt:is([data-value="picture"], [data-value="coloring"]).has-picture .paper-sheet { display: block; background: var(--p); }
 .opt:is([data-value="picture"], [data-value="coloring"]).has-picture fx-icon { display: none; }
