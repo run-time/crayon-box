@@ -270,6 +270,7 @@ function render() {
   const isCustom = !COLORS.some((c) => c.value === state.color);
   custom.classList.toggle("is-picked", isCustom);
   if (isCustom) custom.style.setProperty("--c", state.color);
+  else custom.style.removeProperty("--c");
   if (!rainbow) custom.querySelector("input").value = state.color;
   const customPaper = toolbox.querySelector('[data-group-panel="paper"] .opt.custom');
   const isCustomPaper = !PAPERS.some((p) => p.value === state.paper);
@@ -277,7 +278,7 @@ function render() {
   if (isCustomPaper) {
     customPaper.style.setProperty("--c", state.paper);
     customPaper.querySelector("input").value = state.paper;
-  }
+  } else customPaper.style.removeProperty("--c");
 
   for (const group of ["brush", "color", "size", "shape", "paper"]) {
     const name = labelOf[group](state[group]);
