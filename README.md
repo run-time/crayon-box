@@ -86,3 +86,6 @@ Eraser starts at Gianormous and Round, then restores the previous size and
 shape when you switch to another brush.
 
 Keyboard: ⌘/Ctrl+Z undo, ⇧⌘Z or Ctrl+Y redo, `[` and `]` change size.
+
+On touch screens, pinch to zoom and reposition the paper. **Show All** returns
+to the full view; zoom does not change the drawing or its saved scale.

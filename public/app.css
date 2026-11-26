@@ -193,11 +193,10 @@ summary,
 }
 .opt-text { line-height: 1.1; }
 
-/* Brush icons: their accent (crayon tip, marker line, spray dots, …) is always
-   a soft teal, not the chosen color (shapes and sizes still show that). */
+/* Brush icons use the purple from the logo's crayon, not the chosen color. */
 .grid-brush fx-icon,
 .group-trigger[data-trigger="brush"] fx-icon {
-  --ink: color-mix(in srgb, var(--fx-color-teal-60) 60%, transparent);
+  --ink: color-mix(in srgb, #8138c8 60%, transparent);
 }
 
 /* Paint's strength: three dots in the tile's corner, filled one (Light), two
@@ -308,13 +307,7 @@ summary,
 }
 .grid-size .size-dot {
   background: transparent;
-  box-shadow: 0 0 0 1px var(--picked-bg);
-}
-.grid-size .opt:nth-child(n + 3) .size-dot {
-  box-shadow: 0 0 0 2px var(--picked-bg);
-}
-.grid-size .opt[data-value="xxl"] .size-dot {
-  box-shadow: 0 0 0 3px var(--picked-bg);
+  box-shadow: 0 0 0 var(--ring, 1px) var(--picked-bg);
 }
 
 /* Paper: a little sheet in each paper color. */
@@ -481,13 +474,16 @@ summary,
   color: var(--fx-color-white);
 }
 .trigger-face { display: grid; place-items: center; }
-.group-trigger .crayon { --c: var(--ink); --band: var(--ink-band); width: 12px; height: 38px; }
+.group-trigger .crayon { --c: var(--ink); --band: var(--ink-band); }
 /* The black crayon's bands are white; a darker black would not show. */
 .opt[data-value="#212121"] .crayon { --band: var(--fx-color-white); }
 /* In the strip, Size and Shape draw in the button's own color (black, like the
    Brush button; light while open); only the Color crayon shows the chosen color.
    Their popovers still preview the chosen color. */
-.group-trigger .size-dot { background: currentColor; box-shadow: none; }
+.group-trigger[data-trigger="size"] .size-dot {
+  background: transparent;
+  box-shadow: 0 0 0 var(--ring, 1px) currentColor;
+}
 .group-trigger[data-trigger="shape"] fx-icon { --ink-opposite: var(--fx-layer); filter: none; }
 
 .app[data-layout="rail"] .group-panel {
@@ -564,6 +560,14 @@ summary,
 .stage[data-brush="fill"] { cursor: cell; }
 .stage[data-brush="move"] { cursor: crosshair; }
 
+.artwork {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
 .stage canvas {
   position: absolute;
   top: 0;
@@ -574,6 +578,15 @@ summary,
 .copy-selection {
   position: absolute;
   z-index: 1;
+  touch-action: manipulation;
+}
+.show-all {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: max(var(--fx-spacing-04), env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  opacity: 0.82;
   touch-action: manipulation;
 }
 /* A coloring page's lines, over the drawing: multiplied, so the page's white

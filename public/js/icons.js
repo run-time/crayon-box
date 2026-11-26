@@ -13,7 +13,7 @@ registerIconSet("crayon", {
   viewBox: "0 0 24 24",
   style: "stroke",
   icons: {
-    crayon: `<path d="M13.5 4.5l6 6-8.5 8.5-6-6Z"/><path d="M5 13l-2 8 8-2Z" ${INK}/><path d="M10.5 7.5l6 6"/><path d="M15.5 2.5l6 6"/>`,
+    crayon: `<path d="M15.5 2.5l6 6-10.5 10.5-6-6Z"/><path d="M5 13l-2 8 8-2Z" ${INK}/><path d="M11.5 6l5.5 5.5"/><path d="M15.5 2.5l6 6"/>`,
     marker: `<path d="M14 3.5l5.5 5.5-8 8L6 11.5Z"/><path d="M6 11.5 4 16l3 3 4.5-2" ${INK}/><path d="M11.5 6l5.5 5.5"/><path d="M3 21h9" stroke-width="3" ${INK_STROKE}/>`,
     paint: `<path d="M11.5 14.5l8.8-8.8a1.6 1.6 0 0 0-2.3-2.3L9.5 12.2"/><path d="M9.3 12.2l2.5 2.5c0 3.4-3 6.5-8.8 6.8 1.2-1.6.7-4.3 2.4-6.6 1.2-1.6 2.6-2.3 3.9-2.7Z" ${INK}/>`,
     spray: `<rect x="4" y="10" width="9" height="11" rx="2"/><path d="M6 10V7h5v3"/><path d="M4 14h9"/><path d="M8.5 7V4.5h3"/><g stroke="none" ${INK}><circle cx="16" cy="4.5" r="1.1"/><circle cx="19.5" cy="3" r="1.1"/><circle cx="18.5" cy="7" r="1.1"/><circle cx="21.5" cy="9" r="1.1"/><circle cx="16.5" cy="10" r="1.1"/></g>`,

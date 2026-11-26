@@ -148,7 +148,14 @@ const toolbox = document.querySelector(".toolbox");
 const stage = document.querySelector(".stage");
 const ring = document.querySelector(".cursor-ring");
 const copySelectionButton = document.getElementById("copy-selection");
-const painter = new Painter(stage, document.getElementById("ink"), document.getElementById("wet"), document.getElementById("paper"));
+const showAllButton = document.getElementById("show-all");
+const painter = new Painter(
+  stage,
+  document.getElementById("artwork"),
+  document.getElementById("ink"),
+  document.getElementById("wet"),
+  document.getElementById("paper"),
+);
 const history = new History(painter.ink, { limit: 150, onChange: syncHistoryButtons });
 
 function positionCopySelectionButton() {
@@ -157,16 +164,23 @@ function positionCopySelectionButton() {
   if (!bounds) return;
   const width = copySelectionButton.offsetWidth;
   const height = copySelectionButton.offsetHeight;
-  const left = Math.max(4, Math.min((bounds.left + bounds.right - width) / 2, stage.clientWidth - width - 4));
-  const belowSelection = Math.max(bounds.bottom, painter.selectionRotationHandleBottom) + 12;
+  const center = painter.screenPoint((bounds.left + bounds.right) / 2, 0);
+  const belowSelection = painter.screenPoint(0, Math.max(bounds.bottom, painter.selectionRotationHandleBottom)).y + 12;
+  const left = Math.max(4, Math.min(center.x - width / 2, stage.clientWidth - width - 4));
   const top = Math.max(4, Math.min(belowSelection, stage.clientHeight - height - 4));
   copySelectionButton.style.left = `${left}px`;
   copySelectionButton.style.top = `${top}px`;
 }
 
 painter.onSelectionChange = positionCopySelectionButton;
+painter.onZoomChange = () => {
+  showAllButton.hidden = !painter.zoomed;
+  positionCopySelectionButton();
+};
 copySelectionButton.addEventListener("pointerdown", (event) => event.stopPropagation());
 copySelectionButton.addEventListener("click", () => painter.copySelection());
+showAllButton.addEventListener("pointerdown", (event) => event.stopPropagation());
+showAllButton.addEventListener("click", () => painter.showAll());
 
 // -- Building the groups ----------------------------------------------------
 
@@ -202,7 +216,7 @@ fill(
 );
 fill(
   "size",
-  SIZES.map((s) => option("size", s.id, s.label, `<span class="size-dot" style="--d:${s.dot}px"></span>`)).join(""),
+  SIZES.map((s) => option("size", s.id, s.label, `<span class="size-dot" style="--d:${s.dot}px;--ring:${s.ring}px"></span>`)).join(""),
 );
 fill(
   "shape",
@@ -290,7 +304,10 @@ function render() {
   painter.paintAlpha = strengthOf("paint").alpha;
   painter.sprayFlow = SPRAY_FLOWS[state.spray];
   painter.smudgePress = SMUDGE_PRESSES[state.smudge];
-  toolbox.querySelector('[data-trigger="size"] .size-dot').style.setProperty("--d", `${SIZES.find((s) => s.id === state.size).dot}px`);
+  const size = SIZES.find((s) => s.id === state.size);
+  const sizeDot = toolbox.querySelector('[data-trigger="size"] .size-dot');
+  sizeDot.style.setProperty("--d", `${size.dot}px`);
+  sizeDot.style.setProperty("--ring", `${size.ring}px`);
   toolbox.querySelector('[data-trigger="shape"] .trigger-face').innerHTML = `<fx-icon name="shape:${state.shape}" size="28"></fx-icon>`;
 
   const toggle = document.getElementById("layout-toggle");
@@ -818,8 +835,9 @@ function updateRing() {
     : state.brush === "smudge" ? painter.smudgeSize
     : state.shape === "round" ? painter.size
     : painter.stampSize;
-  ring.style.width = ring.style.height = `${size}px`;
-  ring.style.transform = `translate(${lastPointer.x - size / 2}px, ${lastPointer.y - size / 2}px)`;
+  const displaySize = size * painter.zoom;
+  ring.style.width = ring.style.height = `${displaySize}px`;
+  ring.style.transform = `translate(${lastPointer.x - displaySize / 2}px, ${lastPointer.y - displaySize / 2}px)`;
 }
 
 stage.addEventListener("pointermove", (e) => {
