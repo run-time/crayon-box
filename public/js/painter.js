@@ -23,15 +23,14 @@ export const BRUSHES = [
   { id: "move", label: "Move" }, // select a rectangle, then move, resize or turn it
 ];
 
-// px: the brush width; stamp: how wide a shape stamp is (each size its own,
-// so the smallest stamps still differ); dot: how big it is drawn on its button.
+// px: brush width; stamp: shape stamp width; dot: displayed size; ring: outline width.
 export const SIZES = [
-  { id: "xxs", label: "Tiny", px: 1, stamp: 12, dot: 2 },
-  { id: "xs", label: "Small", px: 4, stamp: 17, dot: 5 },
-  { id: "md", label: "Medium", px: 14, stamp: 22, dot: 10 },
-  { id: "lg", label: "Large", px: 24, stamp: 38, dot: 15 },
-  { id: "xl", label: "Huge", px: 40, stamp: 64, dot: 21 },
-  { id: "xxl", label: "Gianormous", px: 64, stamp: 102, dot: 28 },
+  { id: "xxs", label: "Tiny", px: 1, stamp: 12, dot: 2, ring: 1 },
+  { id: "xs", label: "Small", px: 4, stamp: 17, dot: 5, ring: 1 },
+  { id: "md", label: "Medium", px: 14, stamp: 22, dot: 10, ring: 2 },
+  { id: "lg", label: "Large", px: 24, stamp: 38, dot: 15, ring: 2 },
+  { id: "xl", label: "Huge", px: 40, stamp: 64, dot: 21, ring: 2 },
+  { id: "xxl", label: "Gianormous", px: 64, stamp: 102, dot: 28, ring: 3 },
 ];
 
 // The Sunset paper, top to bottom: night purple down through pink and orange to

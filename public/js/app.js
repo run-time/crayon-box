@@ -216,7 +216,7 @@ fill(
 );
 fill(
   "size",
-  SIZES.map((s) => option("size", s.id, s.label, `<span class="size-dot" style="--d:${s.dot}px"></span>`)).join(""),
+  SIZES.map((s) => option("size", s.id, s.label, `<span class="size-dot" style="--d:${s.dot}px;--ring:${s.ring}px"></span>`)).join(""),
 );
 fill(
   "shape",
@@ -304,7 +304,10 @@ function render() {
   painter.paintAlpha = strengthOf("paint").alpha;
   painter.sprayFlow = SPRAY_FLOWS[state.spray];
   painter.smudgePress = SMUDGE_PRESSES[state.smudge];
-  toolbox.querySelector('[data-trigger="size"] .size-dot').style.setProperty("--d", `${SIZES.find((s) => s.id === state.size).dot}px`);
+  const size = SIZES.find((s) => s.id === state.size);
+  const sizeDot = toolbox.querySelector('[data-trigger="size"] .size-dot');
+  sizeDot.style.setProperty("--d", `${size.dot}px`);
+  sizeDot.style.setProperty("--ring", `${size.ring}px`);
   toolbox.querySelector('[data-trigger="shape"] .trigger-face').innerHTML = `<fx-icon name="shape:${state.shape}" size="28"></fx-icon>`;
 
   const toggle = document.getElementById("layout-toggle");
