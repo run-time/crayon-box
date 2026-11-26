@@ -718,10 +718,10 @@ async function newPicture() {
   remember();
 }
 
-function pictureBlob() {
+function pictureBlob({ cropToDrawing = false } = {}) {
   painter.commitSelection();
   return new Promise((resolve, reject) => {
-    painter.flatten().toBlob((blob) => {
+    painter.flatten({ cropToDrawing }).toBlob((blob) => {
       if (blob) resolve(blob);
       else reject(new Error("The drawing could not be exported as a PNG."));
     }, "image/png");
@@ -755,7 +755,7 @@ async function savePicture() {
 async function sharePicture() {
   let blob;
   try {
-    blob = await pictureBlob();
+    blob = await pictureBlob({ cropToDrawing: true });
   } catch (error) {
     console.error("Could not prepare the drawing for sharing:", error);
     toast("Couldn't prepare the picture to share. Please try again.", { tone: "error" });

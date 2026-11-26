@@ -74,6 +74,9 @@ below the logo; Share Picture follows the tool groups and opens the device's
 share sheet with the drawing as a PNG (choose Messages to text it). Start Over
 at the bottom clears the picture and resets its tools after confirmation.
 Clear All wipes the paper (Undo brings it back). History keeps 150 steps.
+Shared drawings are cropped to the strokes with 48 CSS pixels of paper around
+them, including when strokes touch a canvas edge. Save Picture still saves
+the full visible page.
 
 The picture autosaves to localStorage, so a refresh doesn't lose it.
 Paint, Spray and Smudge have three strengths: picking one starts at Light, and

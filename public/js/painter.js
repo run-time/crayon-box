@@ -218,8 +218,8 @@ export class Painter {
     this.ctx.restore();
   }
 
-  /** The picture on its paper, as a canvas ready to save: just what is on screen, as it looks. */
-  flatten() {
+  /** The picture on its paper, optionally cropped to its ink, as it looks on screen. */
+  flatten({ cropToDrawing = false } = {}) {
     const out = document.createElement("canvas");
     out.width = Math.min(this.ink.width, Math.round(this.stage.clientWidth * this.dpr));
     out.height = Math.min(this.ink.height, Math.round(this.stage.clientHeight * this.dpr));
@@ -241,6 +241,13 @@ export class Painter {
       const scale = Math.max(out.width / w, out.height / h);
       ctx.drawImage(cover, (out.width - w * scale) / 2, (out.height - h * scale) / 2, w * scale, h * scale);
     }
+    let paper;
+    if (cropToDrawing) {
+      paper = document.createElement("canvas");
+      paper.width = out.width;
+      paper.height = out.height;
+      paper.getContext("2d").drawImage(out, 0, 0);
+    }
     ctx.drawImage(this.ink, 0, 0);
     // A coloring page's lines go on top, as on screen (white shows the coloring through).
     if (this.paper === "coloring" && this.lines && this.linesRect) {
@@ -248,6 +255,57 @@ export class Painter {
       ctx.globalCompositeOperation = "multiply";
       ctx.drawImage(this.lines, r.x, r.y, r.w, r.h);
       ctx.globalCompositeOperation = "source-over";
+    }
+    if (cropToDrawing) {
+      const padding = Math.round(48 * this.dpr);
+      const padded = document.createElement("canvas");
+      padded.width = out.width + padding * 2;
+      padded.height = out.height + padding * 2;
+      const paddedCtx = padded.getContext("2d");
+      paddedCtx.drawImage(paper, 0, 0, 1, out.height, 0, padding, padding, out.height);
+      paddedCtx.drawImage(paper, out.width - 1, 0, 1, out.height, padding + out.width, padding, padding, out.height);
+      paddedCtx.drawImage(paper, 0, 0, out.width, 1, padding, 0, out.width, padding);
+      paddedCtx.drawImage(
+        paper, 0, out.height - 1, out.width, 1, padding, padding + out.height, out.width, padding,
+      );
+      paddedCtx.drawImage(paper, 0, 0, 1, 1, 0, 0, padding, padding);
+      paddedCtx.drawImage(paper, out.width - 1, 0, 1, 1, padding + out.width, 0, padding, padding);
+      paddedCtx.drawImage(paper, 0, out.height - 1, 1, 1, 0, padding + out.height, padding, padding);
+      paddedCtx.drawImage(
+        paper, out.width - 1, out.height - 1, 1, 1,
+        padding + out.width, padding + out.height, padding, padding,
+      );
+      paddedCtx.drawImage(out, padding, padding);
+
+      const pixels = document.createElement("canvas");
+      pixels.width = padded.width;
+      pixels.height = padded.height;
+      const pixelCtx = pixels.getContext("2d", { willReadFrequently: true });
+      pixelCtx.drawImage(this.ink, 0, 0, out.width, out.height, padding, padding, out.width, out.height);
+      const { data } = pixelCtx.getImageData(0, 0, padded.width, padded.height);
+      let left = padded.width, top = padded.height, right = -1, bottom = -1;
+      for (let y = 0; y < padded.height; y++) {
+        for (let x = 0; x < padded.width; x++) {
+          if (data[(y * padded.width + x) * 4 + 3] === 0) continue;
+          left = Math.min(left, x);
+          top = Math.min(top, y);
+          right = Math.max(right, x);
+          bottom = Math.max(bottom, y);
+        }
+      }
+      if (right >= 0) {
+        left = Math.max(0, left - padding);
+        top = Math.max(0, top - padding);
+        right = Math.min(padded.width, right + padding + 1);
+        bottom = Math.min(padded.height, bottom + padding + 1);
+        const cropped = document.createElement("canvas");
+        cropped.width = right - left;
+        cropped.height = bottom - top;
+        cropped.getContext("2d").drawImage(
+          padded, left, top, cropped.width, cropped.height, 0, 0, cropped.width, cropped.height,
+        );
+        return cropped;
+      }
     }
     return out;
   }
