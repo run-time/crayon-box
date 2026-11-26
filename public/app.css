@@ -51,7 +51,14 @@ body {
 }
 
 /* prevent double tab zoom on mobile devices */
-* {
+a,
+button,
+input,
+select,
+textarea,
+label,
+summary,
+[role="button"] {
   touch-action: manipulation;
 }
 
@@ -298,6 +305,16 @@ body {
   border-radius: 50%;
   background: var(--ink-bg, var(--ink));
   box-shadow: 0 0 0 1px var(--ink-edge);
+}
+.grid-size .size-dot {
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--picked-bg);
+}
+.grid-size .opt:nth-child(n + 3) .size-dot {
+  box-shadow: 0 0 0 2px var(--picked-bg);
+}
+.grid-size .opt[data-value="xxl"] .size-dot {
+  box-shadow: 0 0 0 3px var(--picked-bg);
 }
 
 /* Paper: a little sheet in each paper color. */

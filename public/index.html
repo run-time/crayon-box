@@ -80,7 +80,9 @@
         <div class="head-buttons">
           <fx-dropdown-menu id="settings" label="Settings" title="Settings">
             <fx-icon slot="trigger" name="menu" size="22"></fx-icon>
-            <button data-value="new" data-tone="danger"><fx-icon name="file-plus" size="18"></fx-icon><span>New Picture</span></button>
+            <button data-value="clear" data-tone="danger"><fx-icon name="close" size="18"></fx-icon><span>Clear All</span></button>
+            <hr />
+            <button data-value="new"><fx-icon name="file-plus" size="18"></fx-icon><span>New Picture</span></button>
             <button data-value="save"><fx-icon name="download" size="18"></fx-icon><span>Save Picture</span></button>
             <hr />
             <button data-value="sidebar" data-check="layout"><fx-icon name="view-detail" size="18"></fx-icon><span>Detail View</span><fx-icon class="menu-check" name="check" size="18"></fx-icon></button>
@@ -95,9 +97,6 @@
       <div class="actions">
         <fx-button id="undo" icon="undo" fg-color="var(--action-icon-color)" aria-label="Undo" title="Undo" disabled><span class="btn-text">Undo</span></fx-button>
         <fx-button id="redo" icon="redo" fg-color="var(--action-icon-color)" aria-label="Redo" title="Redo" disabled><span class="btn-text">Redo</span></fx-button>
-      </div>
-      <div class="share-actions">
-        <fx-button id="share" variant="tonal" icon="share" fg-color="var(--action-icon-color)" aria-label="Share Picture" title="Share Picture"><span class="btn-text">Share Picture</span></fx-button>
       </div>
       <div class="groups">
         <section class="group" data-group="brush">
@@ -151,8 +150,11 @@
         </section>
       </div>
 
+      <div class="share-actions">
+        <fx-button id="share" variant="tonal" icon="share" fg-color="var(--action-icon-color)" aria-label="Share Picture" title="Share Picture"><span class="btn-text">Share Picture</span></fx-button>
+      </div>
       <div class="clear-actions">
-        <fx-button id="clear" variant="danger" icon="close" aria-label="Clear All" title="Clear All"><span class="btn-text">Clear All</span></fx-button>
+        <fx-button id="start-over" variant="danger" icon="close" aria-label="Start Over" title="Start Over"><span class="btn-text">Start Over</span></fx-button>
       </div>
     </aside>
 

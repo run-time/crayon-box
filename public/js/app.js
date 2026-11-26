@@ -350,6 +350,7 @@ settings.addEventListener("fx:menu-select", (e) => {
   const value = e.detail.value;
   if (value === "light" || value === "dark") setTheme(value);
   else if (value === "sidebar" || value === "rail") setLayout(value);
+  else if (value === "clear") clearPicture();
   else if (value === "new") newPicture();
   else if (value === "save") savePicture();
 });
@@ -621,7 +622,7 @@ document.addEventListener("pointerdown", (e) => {
 const buttons = {
   undo: document.getElementById("undo"),
   redo: document.getElementById("redo"),
-  clear: document.getElementById("clear"),
+  startOver: document.getElementById("start-over"),
   share: document.getElementById("share"),
 };
 
@@ -663,7 +664,7 @@ buttons.redo.addEventListener("click", () => {
   painter.commitSelection();
   rememberAfter(history.redo());
 });
-buttons.clear.addEventListener("click", clearPicture);
+buttons.startOver.addEventListener("click", newPicture);
 buttons.share.addEventListener("click", sharePicture);
 
 /** Clear the paper at once. No question asked; Undo brings it back. */

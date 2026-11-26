@@ -67,12 +67,13 @@ away. Narrow screens start in the strip. Clicking the logo in Detail View
 enters Compact View; clicking the crayons in Compact View opens Settings,
 where Detail View returns to the sidebar.
 
-The ☰ menu (hamburger in Detail View, crayons in Compact View) holds New
-Picture / Save Picture, Detail View / Compact View, and Light Mode / Dark Mode
-(menus only, at the bottom). Undo and Redo sit below the logo; Share Picture
-opens the device's share sheet with the drawing as a PNG (choose Messages to
-text it). Clear All at the bottom wipes the paper (Undo brings it back).
-History keeps 150 steps.
+The ☰ menu (hamburger in Detail View, crayons in Compact View) starts with
+Clear All, New Picture and Save Picture, followed by Detail View / Compact
+View and Light Mode / Dark Mode (menus only, at the bottom). Undo and Redo sit
+below the logo; Share Picture follows the tool groups and opens the device's
+share sheet with the drawing as a PNG (choose Messages to text it). Start Over
+at the bottom clears the picture and resets its tools after confirmation.
+Clear All wipes the paper (Undo brings it back). History keeps 150 steps.
 
 The picture autosaves to localStorage, so a refresh doesn't lose it.
 Paint, Spray and Smudge have three strengths: picking one starts at Light, and
