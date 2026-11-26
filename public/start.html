@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Crayon Box</title>
+
+  <meta property="og:title" content="Crayon Box" />
+  <meta property="og:description" content="Create and share amazing doodles!" />
+  <meta property="og:image" content="https://www.crayon-box.com/assets/images/crayon-box.jpg" />
+  <meta property="og:type" content="website" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      max-width: 380px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 12px; }
+    p { font-size: 1rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 20px; }
+    .step {
+      background: #0f172a;
+      padding: 24px 8px;
+      font-size: 1rem;
+      font-weight: 400;
+      margin-bottom: 16px;
+      border: 3px solid #233145;
+    }
+    .badge {
+      display: inline-block;
+      background: #3b82f6;
+      color: #fff;
+      padding: 2px 8px 4px 8px;
+      margin: 0 4px;
+      border-radius: 12px;
+      letter-spacing: 1px;
+      font-weight: 800;
+    }
+    a.fallback {
+      display: inline-block;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      text-decoration: underline;
+      margin-top: 8px;
+    }
+    /* Arrow pointing toward iOS Facebook's bottom-right menu */
+    .pointer {
+      position: fixed;
+      bottom: 18px;
+      right: 22px;
+      width: 64px;
+      height: 64px;
+      animation: bounce 1.2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+  </style>
+
+  <script>
+    const DEFAULT_URL = "https://crayon-box.com";
+    const params = new URLSearchParams(window.location.search);
+    const queryUrl = params.get("url");
+
+    let targetUrl = DEFAULT_URL;
+    if (queryUrl && /^https?:\/\//i.test(queryUrl)) {
+      targetUrl = queryUrl;
+    }
+
+    const ua = navigator.userAgent || "";
+    const isInApp = /FBAN|FBAV|Instagram/i.test(ua);
+    const isAndroid = /Android/i.test(ua);
+
+    if (!isInApp) {
+      // Normal browsers (Safari, Chrome, Desktop) forward immediately
+      window.location.replace(targetUrl);
+    } else if (isAndroid) {
+      // Android supports Chrome Intent URI to break out automatically
+      const cleanUrl = targetUrl.replace(/^https?:\/\//i, "");
+      const scheme = targetUrl.startsWith("http://") ? "http" : "https";
+      window.location.replace(
+        `intent://${cleanUrl}#Intent;scheme=${scheme};package=com.android.chrome;end`
+      );
+    }
+  </script>
+</head>
+<body>
+  <div class="card">
+    <h1>Open in Safari for Full Experience</h1>
+    <p>Facebook's built-in browser blocks certain features on this page.</p>
+    <div class="step">
+      1. Tap <span class="badge">•••</span> at the bottom right<br /><br />
+      2. Select <strong>Open in Browser</strong>
+    </div>
+    <a id="direct-link" class="fallback" href="#">Continue inside Facebook anyway</a>
+  </div>
+
+  <svg class="pointer" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <path d="M12 12 52 52M29 52h23V29" stroke="#fff" stroke-width="7" stroke-linecap="butt" stroke-linejoin="round" />
+  </svg>
+
+  <script>
+    document.getElementById("direct-link").href = targetUrl;
+  </script>
+</body>
+</html>
