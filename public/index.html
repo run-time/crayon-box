@@ -159,12 +159,15 @@
     </aside>
 
     <main class="stage" aria-label="Drawing paper">
-      <div class="paper" id="paper" aria-hidden="true"></div>
-      <canvas id="ink"></canvas>
-      <canvas id="wet" aria-hidden="true"></canvas>
-      <div class="lines" aria-hidden="true"></div>
+      <div class="artwork" id="artwork">
+        <div class="paper" id="paper" aria-hidden="true"></div>
+        <canvas id="ink"></canvas>
+        <canvas id="wet" aria-hidden="true"></canvas>
+        <div class="lines" aria-hidden="true"></div>
+      </div>
       <div class="cursor-ring" hidden></div>
       <fx-button id="copy-selection" class="copy-selection" variant="filled" size="xs" fg-color="var(--fx-color-white)" bg-color="var(--fx-color-purple-60)" hidden>Stamp</fx-button>
+      <fx-button id="show-all" class="show-all" variant="tonal" size="sm" hidden>Show All</fx-button>
     </main>
   </div>
   <fx-dialog id="coloring-dialog" headline="Pick a coloring page" dismissible wide>

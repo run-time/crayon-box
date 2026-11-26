@@ -104,9 +104,12 @@ export class Painter {
   onChange = () => {};
   /** Called when the floating selection moves or changes visibility. */
   onSelectionChange = () => {};
+  /** Called when the viewport zoom changes. */
+  onZoomChange = () => {};
 
-  constructor(stage, ink, wet, paperLayer) {
+  constructor(stage, artwork, ink, wet, paperLayer) {
     this.stage = stage;
+    this.artwork = artwork;
     this.paperLayer = paperLayer; // the page's paper: it fills the stage (the visible paper), as Save does
     this.ink = ink;
     this.wet = wet;
@@ -116,6 +119,13 @@ export class Painter {
     this.width = 0;
     this.height = 0;
     this.stroke = null;
+    this.zoom = 1;
+    this.panX = 0;
+    this.panY = 0;
+    this.touchPoints = new Map();
+    this.pinchActive = false;
+    this.pinchStart = null;
+    this.pendingFill = null;
 
     new ResizeObserver(() => this.fit()).observe(stage);
     this.fit();
@@ -149,7 +159,10 @@ export class Painter {
   fit(minWidth = 0, minHeight = 0) {
     const w = Math.max(Math.ceil(this.stage.clientWidth), minWidth);
     const h = Math.max(Math.ceil(this.stage.clientHeight), minHeight);
+    this.artwork.style.width = `${this.stage.clientWidth}px`;
+    this.artwork.style.height = `${this.stage.clientHeight}px`;
     if (w <= this.width && h <= this.height) {
+      this.#applyViewport();
       this.onSelectionChange();
       return;
     }
@@ -172,6 +185,31 @@ export class Painter {
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.wetCtx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     if (this.sel) this.#drawSelection(); // resizing the canvas wiped the wet layer
+    this.#applyViewport();
+  }
+
+  get zoomed() {
+    return this.zoom > 1;
+  }
+
+  screenPoint(x, y) {
+    return { x: this.panX + x * this.zoom, y: this.panY + y * this.zoom };
+  }
+
+  showAll() {
+    this.zoom = 1;
+    this.panX = 0;
+    this.panY = 0;
+    this.#applyViewport();
+  }
+
+  #applyViewport() {
+    const minX = this.stage.clientWidth * (1 - this.zoom);
+    const minY = this.stage.clientHeight * (1 - this.zoom);
+    this.panX = Math.max(minX, Math.min(0, this.panX));
+    this.panY = Math.max(minY, Math.min(0, this.panY));
+    this.artwork.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
+    this.onZoomChange();
   }
 
   clear() {
@@ -242,13 +280,81 @@ export class Painter {
   // -- Pointer input ------------------------------------------------------
 
   #point(e) {
-    const r = this.ink.getBoundingClientRect();
+    const r = this.stage.getBoundingClientRect();
     const pressure = e.pointerType === "pen" ? e.pressure || 0.5 : 0.5;
-    return { x: e.clientX - r.left, y: e.clientY - r.top, pressure };
+    return {
+      x: (e.clientX - r.left - this.panX) / this.zoom,
+      y: (e.clientY - r.top - this.panY) / this.zoom,
+      pressure,
+    };
+  }
+
+  #touchPoint(e) {
+    const r = this.stage.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  #startPinch() {
+    this.pinchActive = true;
+    this.pendingFill = null;
+    this.#setPinchStart();
+    if (this.stroke) {
+      this.#finish();
+      this.stroke = null;
+      this.onChange();
+    }
+    if (this.drag) {
+      if (this.drag.mode === "select") this.#clearWet();
+      this.drag = null;
+      if (this.sel) this.#drawSelection();
+    }
+    for (const id of this.touchPoints.keys()) {
+      try {
+        this.stage.setPointerCapture(id);
+      } catch {}
+    }
+  }
+
+  #setPinchStart() {
+    const points = [...this.touchPoints.values()].slice(0, 2);
+    const midpoint = { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 };
+    this.pinchStart = {
+      midpoint,
+      distance: Math.max(1, Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y)),
+      zoom: this.zoom,
+      panX: this.panX,
+      panY: this.panY,
+    };
+  }
+
+  #movePinch() {
+    const points = [...this.touchPoints.values()].slice(0, 2);
+    const midpoint = { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 };
+    const distance = Math.max(1, Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y));
+    const start = this.pinchStart;
+    this.zoom = Math.max(1, Math.min(5, start.zoom * distance / start.distance));
+    const contentX = (start.midpoint.x - start.panX) / start.zoom;
+    const contentY = (start.midpoint.y - start.panY) / start.zoom;
+    this.panX = midpoint.x - contentX * this.zoom;
+    this.panY = midpoint.y - contentY * this.zoom;
+    this.#applyViewport();
   }
 
   #down(e) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (e.pointerType === "touch") {
+      if (this.pinchActive && this.touchPoints.size >= 2) return;
+      this.touchPoints.set(e.pointerId, this.#touchPoint(e));
+      if (this.pinchActive) {
+        this.#setPinchStart();
+        return;
+      }
+      if (this.touchPoints.size >= 2) {
+        e.preventDefault();
+        this.#startPinch();
+        return;
+      }
+    }
     if (this.stroke || this.drag) return; // a second finger does not start a second stroke
     e.preventDefault();
     const p = this.#point(e);
@@ -257,6 +363,10 @@ export class Painter {
       return;
     }
     if (this.brush === "fill") {
+      if (e.pointerType === "touch") {
+        this.pendingFill = { id: e.pointerId, point: p };
+        return;
+      }
       if (this.#fill(p)) this.onChange();
       return;
     }
@@ -268,6 +378,14 @@ export class Painter {
   }
 
   #move(e) {
+    if (e.pointerType === "touch" && this.touchPoints.has(e.pointerId)) {
+      this.touchPoints.set(e.pointerId, this.#touchPoint(e));
+      if (this.pinchActive) {
+        e.preventDefault();
+        if (this.touchPoints.size >= 2) this.#movePinch();
+        return;
+      }
+    }
     if (this.brush === "move") {
       this.#moveMove(e);
       return;
@@ -279,6 +397,22 @@ export class Painter {
   }
 
   #up(e) {
+    if (e.pointerType === "touch" && this.touchPoints.has(e.pointerId)) {
+      this.touchPoints.delete(e.pointerId);
+      if (this.pinchActive) {
+        if (!this.touchPoints.size) {
+          this.pinchActive = false;
+          this.pinchStart = null;
+        }
+        return;
+      }
+      if (this.pendingFill?.id === e.pointerId) {
+        const { point } = this.pendingFill;
+        this.pendingFill = null;
+        if (e.type === "pointerup" && this.#fill(point)) this.onChange();
+        return;
+      }
+    }
     if (this.drag && e.pointerId === this.drag.id) {
       this.#moveUp();
       return;

@@ -564,6 +564,14 @@ summary,
 .stage[data-brush="fill"] { cursor: cell; }
 .stage[data-brush="move"] { cursor: crosshair; }
 
+.artwork {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
 .stage canvas {
   position: absolute;
   top: 0;
@@ -574,6 +582,15 @@ summary,
 .copy-selection {
   position: absolute;
   z-index: 1;
+  touch-action: manipulation;
+}
+.show-all {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: max(var(--fx-spacing-04), env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  opacity: 0.82;
   touch-action: manipulation;
 }
 /* A coloring page's lines, over the drawing: multiplied, so the page's white
