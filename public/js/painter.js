@@ -29,7 +29,7 @@ export const SIZES = [
   { id: "xs", label: "Small", px: 4, stamp: 17, dot: 5, ring: 1 },
   { id: "md", label: "Medium", px: 14, stamp: 22, dot: 10, ring: 2 },
   { id: "lg", label: "Large", px: 24, stamp: 38, dot: 15, ring: 2 },
-  { id: "xl", label: "Huge", px: 40, stamp: 64, dot: 21, ring: 2 },
+  { id: "xl", label: "Huge", px: 40, stamp: 64, dot: 21, ring: 3 },
   { id: "xxl", label: "Gianormous", px: 64, stamp: 102, dot: 28, ring: 3 },
 ];
 

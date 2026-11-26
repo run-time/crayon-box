@@ -705,9 +705,12 @@ async function newPicture() {
   painter.clear();
   history.reset(); // a fresh start: nothing to undo back to
   Object.assign(state, DEFAULTS); // and the starting tools (the view and theme stay as they are)
-  // An uploaded picture was this picture's paper: forget it too. (A coloring page stays
-  // in the chooser; the paper is White again.)
+  // Forget uploaded and selected coloring pages too; the paper is White again.
+  state.coloring = null;
+  state.coloringRect = null;
+  painter.lines = null;
   usePicture(null);
+  showColoringPage();
   try {
     localStorage.removeItem(PICTURE_KEY);
   } catch {}
