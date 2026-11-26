@@ -65,18 +65,26 @@
       text-decoration: underline;
       margin-top: 8px;
     }
-    /* Arrow pointing toward iOS Facebook's bottom-right menu */
+    /* Arrows point toward the menu in either common corner. */
     .pointer {
       position: fixed;
-      bottom: 18px;
       right: 22px;
       width: 64px;
       height: 64px;
       animation: bounce 1.2s infinite;
     }
+    .pointer-top {
+      top: 18px;
+      animation-name: bounce-up;
+    }
+    .pointer-bottom { bottom: 18px; }
     @keyframes bounce {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(8px); }
+    }
+    @keyframes bounce-up {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
   </style>
 
@@ -110,16 +118,16 @@
 <body>
   <div class="card">
     <h1>Open in Safari for Full Experience</h1>
-    <p>Facebook's built-in browser blocks certain features on this page.</p>
+    <p>Facebook's built-in browser blocks certain features on the Crayon Box page.</p>
     <div class="step">
-      1. Tap <span class="badge">•••</span> at the bottom right<br /><br />
-      2. Select <strong>Open in Browser</strong>
+      1. Tap <span class="badge">•••</span> in the top right<br /><br />
+      2. Select <strong>Open in external Browser</strong>
     </div>
     <a id="direct-link" class="fallback" href="#">Continue inside Facebook anyway</a>
   </div>
 
-  <svg class="pointer" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-    <path d="M12 12 52 52M29 52h23V29" stroke="#fff" stroke-width="7" stroke-linecap="butt" stroke-linejoin="round" />
+  <svg class="pointer pointer-top" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <path d="M12 52 52 12M29 12h23v23" stroke="#fff" stroke-width="7" />
   </svg>
 
   <script>
